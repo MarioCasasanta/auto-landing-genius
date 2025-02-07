@@ -3,7 +3,7 @@ import { Link, Outlet } from "react-router-dom";
 import {
   Users,
   Layout,
-  FileTemplate,
+  FileText,
   Files,
   CreditCard,
   Settings,
@@ -39,7 +39,7 @@ export default function AdminLayout() {
               Landing Pages
             </Link>
             <Link to="/admin/templates" className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-              <FileTemplate className="w-5 h-5 mr-3" />
+              <FileText className="w-5 h-5 mr-3" />
               Templates
             </Link>
             <Link to="/admin/swipe-files" className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
