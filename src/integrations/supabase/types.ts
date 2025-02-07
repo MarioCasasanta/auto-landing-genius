@@ -119,6 +119,7 @@ export type Database = {
           additional_comments: string | null
           business_type: string
           client_name: string
+          color_scheme: Json | null
           company_history: string | null
           company_name: string
           content: Json | null
@@ -133,6 +134,7 @@ export type Database = {
           profile_id: string
           show_pricing: boolean | null
           status: string | null
+          style_preferences: Json | null
           subdomain: string | null
           template_id: string | null
           title: string
@@ -142,6 +144,7 @@ export type Database = {
           additional_comments?: string | null
           business_type: string
           client_name: string
+          color_scheme?: Json | null
           company_history?: string | null
           company_name: string
           content?: Json | null
@@ -156,6 +159,7 @@ export type Database = {
           profile_id: string
           show_pricing?: boolean | null
           status?: string | null
+          style_preferences?: Json | null
           subdomain?: string | null
           template_id?: string | null
           title: string
@@ -165,6 +169,7 @@ export type Database = {
           additional_comments?: string | null
           business_type?: string
           client_name?: string
+          color_scheme?: Json | null
           company_history?: string | null
           company_name?: string
           content?: Json | null
@@ -179,6 +184,7 @@ export type Database = {
           profile_id?: string
           show_pricing?: boolean | null
           status?: string | null
+          style_preferences?: Json | null
           subdomain?: string | null
           template_id?: string | null
           title?: string
@@ -407,31 +413,40 @@ export type Database = {
       templates: {
         Row: {
           category: string
+          color_schemes: Json | null
           content: Json
           created_at: string
           id: string
           is_active: boolean | null
           name: string
+          preview_image_url: string | null
+          tags: string[] | null
           thumbnail_url: string | null
           updated_at: string
         }
         Insert: {
           category: string
+          color_schemes?: Json | null
           content: Json
           created_at?: string
           id?: string
           is_active?: boolean | null
           name: string
+          preview_image_url?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
         }
         Update: {
           category?: string
+          color_schemes?: Json | null
           content?: Json
           created_at?: string
           id?: string
           is_active?: boolean | null
           name?: string
+          preview_image_url?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
         }
