@@ -21,7 +21,15 @@ export default function DatabaseDocs() {
       description: "Armazena as landing pages criadas pelos usuários",
       relationships: [
         "Relacionado com profiles através de profile_id",
-        "Relacionado com templates através de template_id (opcional)"
+        "Relacionado com templates através de template_id (opcional)",
+        "Referenciado por landing_page_elements.landing_page_id"
+      ]
+    },
+    {
+      name: "landing_page_elements",
+      description: "Armazena os elementos individuais de cada landing page",
+      relationships: [
+        "Relacionado com landing_pages através de landing_page_id"
       ]
     },
     {
@@ -122,26 +130,27 @@ export default function DatabaseDocs() {
                         </ul>
                       </TableCell>
                     </TableRow>
-                  )TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
 
-            <Card className="mt-8">
-              <CardHeader>
-                <CardTitle>Notas Importantes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc list-inside space-y-2 text-gray-600">
-                  <li>Todas as tabelas incluem campos de auditoria (created_at, updated_at)</li>
-                  <li>A maioria das tabelas usa UUID como chave primária</li>
-                  <li>O campo profile_id é usado como chave estrangeira para relacionar entidades com usuários</li>
-                  <li>Alguns relacionamentos são feitos através de campos de texto (ex: plan_type) em vez de chaves estrangeiras diretas</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Notas Importantes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc list-inside space-y-2 text-gray-600">
+                <li>Todas as tabelas incluem campos de auditoria (created_at, updated_at)</li>
+                <li>A maioria das tabelas usa UUID como chave primária</li>
+                <li>O campo profile_id é usado como chave estrangeira para relacionar entidades com usuários</li>
+                <li>Alguns relacionamentos são feitos através de campos de texto (ex: plan_type) em vez de chaves estrangeiras diretas</li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    );
+    </div>
+  );
 }

@@ -76,6 +76,44 @@ export type Database = {
           },
         ]
       }
+      landing_page_elements: {
+        Row: {
+          content: Json
+          created_at: string
+          element_type: string
+          id: string
+          landing_page_id: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          element_type: string
+          id?: string
+          landing_page_id: string
+          position: number
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          element_type?: string
+          id?: string
+          landing_page_id?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_page_elements_landing_page_id_fkey"
+            columns: ["landing_page_id"]
+            isOneToOne: false
+            referencedRelation: "landing_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       landing_pages: {
         Row: {
           additional_comments: string | null
