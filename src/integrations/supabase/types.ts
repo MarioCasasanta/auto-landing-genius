@@ -32,6 +32,39 @@ export type Database = {
           },
         ]
       }
+      faqs: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          id: string
+          is_visible: boolean | null
+          order_index: number | null
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          order_index?: number | null
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          order_index?: number | null
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       implementation_progress: {
         Row: {
           completed_at: string | null
@@ -448,6 +481,42 @@ export type Database = {
           preview_image_url?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          author_company: string | null
+          author_name: string
+          author_role: string | null
+          content: string
+          created_at: string
+          id: string
+          is_visible: boolean | null
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          author_company?: string | null
+          author_name: string
+          author_role?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          author_company?: string | null
+          author_name?: string
+          author_role?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          rating?: number | null
           updated_at?: string
         }
         Relationships: []
