@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -17,13 +18,15 @@ const Hero = () => {
             Crie landing pages de alta conversão com IA e templates validados.
             Ideal para profissionais autônomos e pequenas empresas.
           </p>
-          <Button 
-            size="lg" 
-            className="bg-accent hover:bg-accent/90 transition-colors text-lg py-6 px-8 rounded-xl shadow-lg hover:shadow-xl"
-          >
-            Crie Sua Landing Page Agora
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <Link to="/questionnaire">
+            <Button 
+              size="lg" 
+              className="bg-accent hover:bg-accent/90 transition-colors text-lg py-6 px-8 rounded-xl shadow-lg hover:shadow-xl"
+            >
+              Experimente Grátis por 7 Dias
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
