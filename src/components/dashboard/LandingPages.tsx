@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Eye, ArrowUpDown } from "lucide-react";
+import { Plus, Edit, Eye, ArrowUpDown, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -12,6 +13,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import DomainManagement from "./DomainManagement";
 
 interface LandingPage {
   id: string;
@@ -20,10 +26,14 @@ interface LandingPage {
   created_at: string;
   company_name: string;
   business_type: string;
+  subdomain: string | null;
+  domain: string | null;
 }
 
 export default function LandingPages() {
   const [pages, setPages] = useState<LandingPage[]>([]);
+  const [selectedPage, setSelectedPage] = useState<LandingPage | null>(null);
+  const [showDomainDialog, setShowDomainDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -66,6 +76,14 @@ export default function LandingPages() {
         page.id === id ? { ...page, status: newStatus } : page
       ));
 
+      if (newStatus === "published") {
+        const page = pages.find(p => p.id === id);
+        if (page) {
+          setSelectedPage(page);
+          setShowDomainDialog(true);
+        }
+      }
+
       toast({
         title: "Success",
         description: `Landing page ${newStatus === "published" ? "published" : "unpublished"} successfully`,
@@ -77,6 +95,11 @@ export default function LandingPages() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDomainManagementClick = (page: LandingPage) => {
+    setSelectedPage(page);
+    setShowDomainDialog(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -107,7 +130,15 @@ export default function LandingPages() {
           pages.map((page) => (
             <Card key={page.id} className="hover:border-primary transition-colors">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl">{page.title}</CardTitle>
+                <div className="space-y-1">
+                  <CardTitle className="text-xl">{page.title}</CardTitle>
+                  {page.subdomain && (
+                    <CardDescription className="flex items-center space-x-1">
+                      <Globe className="h-4 w-4" />
+                      <span>{page.subdomain}.yourdomain.com</span>
+                    </CardDescription>
+                  )}
+                </div>
                 <Badge className={getStatusColor(page.status)}>
                   {page.status}
                 </Badge>
@@ -144,12 +175,45 @@ export default function LandingPages() {
                     <ArrowUpDown className="h-4 w-4 mr-2" />
                     {page.status === "published" ? "Unpublish" : "Publish"}
                   </Button>
+                  {page.status === "published" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDomainManagementClick(page)}
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      Manage Domain
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
           ))
         )}
       </div>
+
+      <Dialog 
+        open={showDomainDialog} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowDomainDialog(false);
+            setSelectedPage(null);
+          }
+        }}
+      >
+        <DialogContent>
+          {selectedPage && (
+            <DomainManagement
+              landingPageId={selectedPage.id}
+              subdomain={selectedPage.subdomain}
+              onClose={() => {
+                setShowDomainDialog(false);
+                setSelectedPage(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
