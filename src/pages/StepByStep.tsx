@@ -94,14 +94,14 @@ export default function StepByStep() {
         if (fetchError) throw fetchError;
 
         if (!existingProgress?.length) {
-          // Initialize progress for all tasks
+          // Initialize progress for all tasks with proper typing
           const progressData = initialSteps.flatMap((step, stepIndex) =>
             step.tasks.map(task => ({
               profile_id: user.id,
               step_number: stepIndex + 1,
               step_title: step.title,
               task_name: task,
-              status: 'not_started'
+              status: 'not_started' as const
             }))
           );
 
@@ -155,9 +155,10 @@ export default function StepByStep() {
     setSteps(mappedSteps);
   };
 
-  const updateTaskStatus = async (taskId: string, currentStatus: string) => {
+  const updateTaskStatus = async (taskId: string, currentStatus: 'not_started' | 'in_progress' | 'completed') => {
     try {
       const newStatus = currentStatus === 'completed' ? 'not_started' : 'completed';
+      
       const { error } = await supabase
         .from('implementation_progress')
         .update({ 
