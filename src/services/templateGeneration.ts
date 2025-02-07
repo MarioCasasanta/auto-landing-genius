@@ -11,11 +11,18 @@ export interface TemplateGenerationData {
 
 export async function generateTemplate(data: TemplateGenerationData) {
   try {
+    console.log('Generating template with data:', data);
+    
     const response = await supabase.functions.invoke('generate-template', {
       body: { data }
     });
 
-    if (response.error) throw response.error;
+    if (response.error) {
+      console.error('Template generation error:', response.error);
+      throw response.error;
+    }
+
+    console.log('Generated template:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error generating template:', error);

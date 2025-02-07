@@ -14,15 +14,23 @@ serve(async (req) => {
   try {
     const { data } = await req.json()
 
-    // Generate a system prompt based on the data
-    const systemPrompt = `You are an expert landing page designer. Create a landing page template based on the following information:
+    const systemPrompt = `You are an expert landing page designer. Create a complete landing page template based on the following information:
+    - Client Name: ${data.client_name}
     - Company: ${data.company_name}
     - Business Type: ${data.business_type}
     - Main Objective: ${data.objective}
     ${data.offer_details ? `- Offer Details: ${data.offer_details}` : ''}
     ${data.company_history ? `- Company History: ${data.company_history}` : ''}
     
-    Generate a JSON structure that includes sections for hero, features, testimonials, and call-to-action.`
+    Generate a JSON structure that includes:
+    1. Hero section with compelling headline and description
+    2. Features section highlighting main benefits
+    3. About section using company history if available
+    4. Call-to-action sections optimized for the main objective
+    5. Testimonials section structure
+    6. Contact/Form section based on the objective
+    
+    The response should be a valid JSON object with these sections.`
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -31,16 +39,20 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: 'Generate a landing page template structure' }
+          { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
         ],
+        temperature: 0.7,
       }),
     })
 
     const result = await response.json()
     const template = result.choices[0].message.content
+
+    // Log the generated template for debugging
+    console.log('Generated template:', template)
 
     return new Response(
       JSON.stringify({ template: JSON.parse(template) }),
