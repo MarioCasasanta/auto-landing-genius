@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import StepByStep from "./pages/StepByStep";
 import DatabaseDocs from "./pages/DatabaseDocs";
 import Admin from "./pages/Admin";
+import AdminLayout from "./components/admin/AdminLayout";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,15 @@ const App = () => (
           <Route path="/step-by-step" element={<StepByStep />} />
           <Route path="/database-docs" element={<DatabaseDocs />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/*" element={<AdminLayout />}>
+            <Route path="dashboard" element={<div>Dashboard Admin</div>} />
+            <Route path="users" element={<div>Gerenciamento de Usuários</div>} />
+            <Route path="landing-pages" element={<div>Gerenciamento de Landing Pages</div>} />
+            <Route path="templates" element={<div>Gerenciamento de Templates</div>} />
+            <Route path="swipe-files" element={<div>Gerenciamento de Swipe Files</div>} />
+            <Route path="subscriptions" element={<div>Gerenciamento de Assinaturas</div>} />
+            <Route path="settings" element={<div>Configurações</div>} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
