@@ -16,7 +16,6 @@ export default function LandingPageEditor() {
   };
 
   const handleImageSelect = (imageUrl: string) => {
-    // Atualiza o conteúdo com a nova imagem
     setContent((prev: any) => ({
       ...prev,
       images: [...(prev?.images || []), imageUrl],
@@ -45,7 +44,7 @@ export default function LandingPageEditor() {
             </TabsList>
 
             <TabsContent value="template">
-              <TemplateSelector onSelect={handleTemplateSelect} />
+              <TemplateSelector onSelectTemplate={handleTemplateSelect} selectedTemplateId={selectedTemplate?.id} />
             </TabsContent>
 
             <TabsContent value="assets">
@@ -61,3 +60,4 @@ export default function LandingPageEditor() {
     </div>
   );
 }
+
