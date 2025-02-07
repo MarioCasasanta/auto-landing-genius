@@ -39,7 +39,8 @@ export default function StepByStep() {
       title: "II. Área do Cliente",
       tasks: [
         { name: "Dashboard Principal", status: "completed" },
-        { name: "Editor de Landing Page (MVP)", status: "not_started" },
+        { name: "Editor de Landing Page (Templates e Assets)", status: "completed" },
+        { name: "Editor de Landing Page (IA)", status: "completed" },
         { name: "Configurações de Domínio", status: "not_started" },
         { name: "Configurações de E-mail (Futuro)", status: "not_started" },
         { name: "Área de Suporte", status: "not_started" }
@@ -48,7 +49,7 @@ export default function StepByStep() {
     {
       title: "III. Backend e Funcionalidades Internas",
       tasks: [
-        { name: "IA Engine para Geração de Landing Pages", status: "in_progress" },
+        { name: "IA Engine para Geração de Landing Pages", status: "completed" },
         { name: "Biblioteca de Swiper Files", status: "completed" },
         { name: "Lógica do Questionário", status: "completed" },
         { name: "Sistema de Templates", status: "completed" },
