@@ -1,11 +1,9 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
-import { generateTemplate } from "@/services/templateGeneration";
-import { useNavigate } from "react-router-dom";
+import { useQuestionnaireState } from "@/hooks/useQuestionnaireState";
+import { useQuestionnaireSubmit } from "@/hooks/useQuestionnaireSubmit";
 
 import InitialInfoStep from "./questionnaire/InitialInfoStep";
 import ObjectiveStep from "./questionnaire/ObjectiveStep";
@@ -17,153 +15,24 @@ import TemplatePreviewStep from "./questionnaire/TemplatePreviewStep";
 import PricingStep from "./questionnaire/PricingStep";
 import PricingPlanStep from "./questionnaire/PricingPlanStep";
 
-interface QuestionnaireData {
-  client_name: string;
-  company_name: string;
-  business_type: string;
-  objective: "leads" | "appointment" | "sales" | "event" | "branding" | "other";
-  objective_other?: string;
-  offer_details?: string;
-  has_photos: boolean;
-  uploaded_images?: string[];
-  additional_comments?: string;
-  company_history?: string;
-  show_pricing: boolean;
-  pricing_details?: string;
-  selected_plan?: string | null;
-}
-
 export default function LandingPageQuestionnaire() {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<QuestionnaireData>({
-    client_name: "",
-    company_name: "",
-    business_type: "",
-    objective: "leads",
-    has_photos: false,
-    show_pricing: false,
-    selected_plan: null,
-  });
-  const [generatedTemplate, setGeneratedTemplate] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const {
+    step,
+    setStep,
+    formData,
+    generatedTemplate,
+    isGenerating,
+    setGeneratedTemplate,
+    setIsGenerating,
+    handleInputChange,
+    handleObjectiveChange,
+    handlePhotoChange,
+    handlePricingChange,
+    handlePlanSelect,
+    handleImageUpload,
+  } = useQuestionnaireState();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleObjectiveChange = (value: QuestionnaireData["objective"]) => {
-    setFormData((prev) => ({
-      ...prev,
-      objective: value,
-    }));
-  };
-
-  const handlePhotoChange = (value: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      has_photos: value,
-    }));
-  };
-
-  const handlePricingChange = (value: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      show_pricing: value,
-    }));
-  };
-
-  const handlePlanSelect = (plan: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      selected_plan: plan,
-    }));
-  };
-
-  const handleImageUpload = (urls: string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      uploaded_images: urls,
-    }));
-  };
-
-  const handleGenerateTemplate = async () => {
-    try {
-      setIsGenerating(true);
-      const template = await generateTemplate({
-        client_name: formData.client_name,
-        company_name: formData.company_name,
-        business_type: formData.business_type,
-        objective: formData.objective,
-        offer_details: formData.offer_details,
-        company_history: formData.company_history,
-      });
-      setGeneratedTemplate(template);
-      toast({
-        title: "Sucesso!",
-        description: "Template gerado com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Falha ao gerar o template.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Não autenticado");
-
-      // Start trial period
-      const now = new Date().toISOString();
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          trial_start_date: now,
-          selected_plan: formData.selected_plan,
-        })
-        .eq("id", user.id);
-
-      if (profileError) throw profileError;
-
-      // Create landing page
-      const title = `${formData.company_name} - ${formData.business_type} Landing Page`;
-      const { error: landingPageError } = await supabase.from("landing_pages").insert({
-        ...formData,
-        profile_id: user.id,
-        status: "draft",
-        title,
-        content: {
-          template: generatedTemplate,
-          images: formData.uploaded_images || [],
-        },
-      });
-
-      if (landingPageError) throw landingPageError;
-
-      toast({
-        title: "Sucesso!",
-        description: "Sua landing page está sendo gerada.",
-      });
-      
-      navigate("/dashboard");
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Falha ao criar landing page.",
-        variant: "destructive",
-      });
-    }
-  };
+  const { handleGenerateTemplate, handleSubmit } = useQuestionnaireSubmit();
 
   const renderStep = () => {
     switch (step) {
@@ -216,7 +85,9 @@ export default function LandingPageQuestionnaire() {
           <TemplatePreviewStep
             generatedTemplate={generatedTemplate}
             isGenerating={isGenerating}
-            handleGenerateTemplate={handleGenerateTemplate}
+            handleGenerateTemplate={() =>
+              handleGenerateTemplate(formData, setGeneratedTemplate, setIsGenerating)
+            }
           />
         );
       case 8:
@@ -276,7 +147,7 @@ export default function LandingPageQuestionnaire() {
         ) : (
           <Button
             className="ml-auto"
-            onClick={handleSubmit}
+            onClick={() => handleSubmit(formData, generatedTemplate)}
             disabled={!formData.selected_plan || !generatedTemplate}
           >
             Criar Landing Page
