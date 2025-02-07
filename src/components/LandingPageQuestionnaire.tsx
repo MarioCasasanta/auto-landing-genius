@@ -1,9 +1,11 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { generateTemplate } from "@/services/templateGeneration";
+import { useNavigate } from "react-router-dom";
 
 import InitialInfoStep from "./questionnaire/InitialInfoStep";
 import ObjectiveStep from "./questionnaire/ObjectiveStep";
@@ -13,6 +15,7 @@ import AdditionalInfoStep from "./questionnaire/AdditionalInfoStep";
 import CompanyHistoryStep from "./questionnaire/CompanyHistoryStep";
 import TemplatePreviewStep from "./questionnaire/TemplatePreviewStep";
 import PricingStep from "./questionnaire/PricingStep";
+import PricingPlanStep from "./questionnaire/PricingPlanStep";
 
 interface QuestionnaireData {
   client_name: string;
@@ -27,6 +30,7 @@ interface QuestionnaireData {
   company_history?: string;
   show_pricing: boolean;
   pricing_details?: string;
+  selected_plan?: string | null;
 }
 
 export default function LandingPageQuestionnaire() {
@@ -38,10 +42,12 @@ export default function LandingPageQuestionnaire() {
     objective: "leads",
     has_photos: false,
     show_pricing: false,
+    selected_plan: null,
   });
   const [generatedTemplate, setGeneratedTemplate] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({
@@ -71,6 +77,13 @@ export default function LandingPageQuestionnaire() {
     }));
   };
 
+  const handlePlanSelect = (plan: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      selected_plan: plan,
+    }));
+  };
+
   const handleImageUpload = (urls: string[]) => {
     setFormData((prev) => ({
       ...prev,
@@ -91,13 +104,13 @@ export default function LandingPageQuestionnaire() {
       });
       setGeneratedTemplate(template);
       toast({
-        title: "Success!",
-        description: "Template generated successfully.",
+        title: "Sucesso!",
+        description: "Template gerado com sucesso.",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to generate template.",
+        title: "Erro",
+        description: "Falha ao gerar o template.",
         variant: "destructive",
       });
     } finally {
@@ -108,11 +121,23 @@ export default function LandingPageQuestionnaire() {
   const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error("Não autenticado");
 
+      // Start trial period
+      const now = new Date().toISOString();
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          trial_start_date: now,
+          selected_plan: formData.selected_plan,
+        })
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+
+      // Create landing page
       const title = `${formData.company_name} - ${formData.business_type} Landing Page`;
-
-      const { error } = await supabase.from("landing_pages").insert({
+      const { error: landingPageError } = await supabase.from("landing_pages").insert({
         ...formData,
         profile_id: user.id,
         status: "draft",
@@ -123,16 +148,18 @@ export default function LandingPageQuestionnaire() {
         },
       });
 
-      if (error) throw error;
+      if (landingPageError) throw landingPageError;
 
       toast({
-        title: "Success!",
-        description: "Your landing page is being generated.",
+        title: "Sucesso!",
+        description: "Sua landing page está sendo gerada.",
       });
+      
+      navigate("/dashboard");
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to create landing page.",
+        title: "Erro",
+        description: "Falha ao criar landing page.",
         variant: "destructive",
       });
     }
@@ -200,18 +227,27 @@ export default function LandingPageQuestionnaire() {
             handleInputChange={handleInputChange}
           />
         );
+      case 9:
+        return (
+          <PricingPlanStep
+            selectedPlan={formData.selected_plan}
+            onSelectPlan={handlePlanSelect}
+          />
+        );
       default:
         return null;
     }
   };
 
+  const totalSteps = 9;
+
   return (
-    <div className="max-w-2xl mx-auto py-12 px-4">
+    <div className="max-w-4xl mx-auto py-12 px-4">
       <div className="mb-8">
         <div className="h-2 bg-muted rounded-full">
           <div
             className="h-2 bg-primary rounded-full transition-all duration-300"
-            style={{ width: `${(step / 8) * 100}%` }}
+            style={{ width: `${(step / totalSteps) * 100}%` }}
           />
         </div>
       </div>
@@ -228,10 +264,11 @@ export default function LandingPageQuestionnaire() {
             Anterior
           </Button>
         )}
-        {step < 8 ? (
+        {step < totalSteps ? (
           <Button
             className="ml-auto"
             onClick={() => setStep((prev) => prev + 1)}
+            disabled={step === 7 && !generatedTemplate}
           >
             Próximo
             <ChevronRight className="ml-2" />
@@ -240,9 +277,9 @@ export default function LandingPageQuestionnaire() {
           <Button
             className="ml-auto"
             onClick={handleSubmit}
-            disabled={!generatedTemplate}
+            disabled={!formData.selected_plan || !generatedTemplate}
           >
-            Gerar Landing Page
+            Criar Landing Page
             <Check className="ml-2" />
           </Button>
         )}
