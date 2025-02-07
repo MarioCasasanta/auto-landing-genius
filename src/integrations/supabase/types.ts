@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      implementation_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          profile_id: string
+          status: Database["public"]["Enums"]["implementation_status"] | null
+          step_number: number
+          step_title: string
+          task_name: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          profile_id: string
+          status?: Database["public"]["Enums"]["implementation_status"] | null
+          step_number: number
+          step_title: string
+          task_name: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          profile_id?: string
+          status?: Database["public"]["Enums"]["implementation_status"] | null
+          step_number?: number
+          step_title?: string
+          task_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "implementation_progress_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       landing_pages: {
         Row: {
           additional_comments: string | null
@@ -303,6 +347,7 @@ export type Database = {
       }
     }
     Enums: {
+      implementation_status: "not_started" | "in_progress" | "completed"
       landing_page_objective:
         | "leads"
         | "appointment"
