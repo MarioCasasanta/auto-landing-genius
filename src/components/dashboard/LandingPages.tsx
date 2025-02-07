@@ -6,15 +6,19 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function LandingPages() {
-  const [pages, setPages] = useState([]);
+  const [pages, setPages] = useState<any[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchPages = async () => {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+
         const { data, error } = await supabase
           .from("landing_pages")
-          .select("*");
+          .select("*")
+          .eq("profile_id", user.id);
 
         if (error) throw error;
         setPages(data || []);
@@ -44,7 +48,7 @@ export default function LandingPages() {
         {pages.length === 0 ? (
           <p className="text-muted-foreground">No landing pages created yet.</p>
         ) : (
-          pages.map((page: any) => (
+          pages.map((page) => (
             <div
               key={page.id}
               className="p-4 border rounded-lg hover:border-primary transition-colors"

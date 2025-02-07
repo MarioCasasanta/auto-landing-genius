@@ -11,11 +11,22 @@ export type Database = {
     Tables: {
       landing_pages: {
         Row: {
+          additional_comments: string | null
+          business_type: string
+          client_name: string
+          company_history: string | null
+          company_name: string
           content: Json | null
           created_at: string
           domain: string | null
+          has_photos: boolean | null
           id: string
+          objective: Database["public"]["Enums"]["landing_page_objective"]
+          objective_other: string | null
+          offer_details: string | null
+          pricing_details: string | null
           profile_id: string
+          show_pricing: boolean | null
           status: string | null
           subdomain: string | null
           template_id: string | null
@@ -23,11 +34,22 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          additional_comments?: string | null
+          business_type: string
+          client_name: string
+          company_history?: string | null
+          company_name: string
           content?: Json | null
           created_at?: string
           domain?: string | null
+          has_photos?: boolean | null
           id?: string
+          objective: Database["public"]["Enums"]["landing_page_objective"]
+          objective_other?: string | null
+          offer_details?: string | null
+          pricing_details?: string | null
           profile_id: string
+          show_pricing?: boolean | null
           status?: string | null
           subdomain?: string | null
           template_id?: string | null
@@ -35,11 +57,22 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          additional_comments?: string | null
+          business_type?: string
+          client_name?: string
+          company_history?: string | null
+          company_name?: string
           content?: Json | null
           created_at?: string
           domain?: string | null
+          has_photos?: boolean | null
           id?: string
+          objective?: Database["public"]["Enums"]["landing_page_objective"]
+          objective_other?: string | null
+          offer_details?: string | null
+          pricing_details?: string | null
           profile_id?: string
+          show_pricing?: boolean | null
           status?: string | null
           subdomain?: string | null
           template_id?: string | null
@@ -209,7 +242,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      landing_page_objective:
+        | "leads"
+        | "appointment"
+        | "sales"
+        | "event"
+        | "branding"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
