@@ -20,9 +20,13 @@ export default function SwipeFiles() {
   const { data: swipeFiles, isLoading } = useQuery({
     queryKey: ["swipe-files"],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { data, error } = await supabase
         .from("swipe_files")
         .select("*")
+        .eq("profile_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -66,6 +70,16 @@ export default function SwipeFiles() {
         return;
       }
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "No user found",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setUploading(true);
       const fileExt = file.name.split(".").pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
@@ -86,6 +100,7 @@ export default function SwipeFiles() {
           description,
           category,
           file_url: publicUrl,
+          profile_id: user.id,
         });
 
         if (insertError) throw insertError;
@@ -204,12 +219,12 @@ export default function SwipeFiles() {
                   <span className="text-xs bg-secondary px-2 py-1 rounded-full">
                     {file.category}
                   </span>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    asChild
-                  >
-                    <a href={file.file_url} target="_blank" rel="noopener noreferrer">
+                  <Button variant="link" size="sm" asChild>
+                    <a
+                      href={file.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       View File
                     </a>
                   </Button>
