@@ -68,10 +68,14 @@ export default function LandingPageQuestionnaire() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Generate a title for the landing page
+      const title = `${formData.company_name} - ${formData.business_type} Landing Page`;
+
       const { error } = await supabase.from("landing_pages").insert({
         ...formData,
         profile_id: user.id,
         status: "draft",
+        title: title, // Add the title field
       });
 
       if (error) throw error;
