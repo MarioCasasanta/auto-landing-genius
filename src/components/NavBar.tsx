@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const NavBar = () => {
   return (
@@ -15,9 +16,11 @@ const NavBar = () => {
           <a href="#pricing" className="text-gray-600 hover:text-primary transition-colors">
             Preços
           </a>
-          <Button className="bg-accent hover:bg-accent/90 transition-colors">
-            Começar Agora <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <Link to="/dashboard">
+            <Button className="bg-accent hover:bg-accent/90 transition-colors">
+              Começar Agora <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </nav>
