@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight, Upload, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import ImageUploader from "./ImageUploader";
 
 interface QuestionnaireData {
   client_name: string;
@@ -17,6 +18,7 @@ interface QuestionnaireData {
   objective_other?: string;
   offer_details?: string;
   has_photos: boolean;
+  uploaded_images?: string[];
   additional_comments?: string;
   company_history?: string;
   show_pricing: boolean;
@@ -63,19 +65,28 @@ export default function LandingPageQuestionnaire() {
     }));
   };
 
+  const handleImageUpload = (urls: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      uploaded_images: urls,
+    }));
+  };
+
   const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Generate a title for the landing page
       const title = `${formData.company_name} - ${formData.business_type} Landing Page`;
 
       const { error } = await supabase.from("landing_pages").insert({
         ...formData,
         profile_id: user.id,
         status: "draft",
-        title: title, // Add the title field
+        title,
+        content: {
+          images: formData.uploaded_images || [],
+        },
       });
 
       if (error) throw error;
@@ -92,6 +103,8 @@ export default function LandingPageQuestionnaire() {
       });
     }
   };
+
+  // ... keep existing code (renderStep function start)
 
   const renderStep = () => {
     switch (step) {
@@ -230,10 +243,7 @@ export default function LandingPageQuestionnaire() {
                 <Label htmlFor="has_photos">Sim, possuo fotos</Label>
               </div>
               {formData.has_photos && (
-                <Button variant="outline" className="w-full">
-                  <Upload className="mr-2" />
-                  Fazer upload das fotos
-                </Button>
+                <ImageUploader onUploadComplete={handleImageUpload} />
               )}
             </div>
           </div>
@@ -313,9 +323,6 @@ export default function LandingPageQuestionnaire() {
             </div>
           </div>
         );
-
-      default:
-        return null;
     }
   };
 
