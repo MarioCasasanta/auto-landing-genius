@@ -13,6 +13,7 @@ import StepByStep from "./pages/StepByStep";
 import DatabaseDocs from "./pages/DatabaseDocs";
 import ERDiagram from "./pages/ERDiagram";
 import ComponentsDocs from "./pages/ComponentsDocs";
+import Documentation from "./pages/Documentation";
 import Admin from "./pages/Admin";
 import AdminLayout from "./components/admin/AdminLayout";
 import ImageManager from "./components/admin/ImageManager";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/database-docs" element={<DatabaseDocs />} />
           <Route path="/er-diagram" element={<ERDiagram />} />
           <Route path="/components-docs" element={<ComponentsDocs />} />
+          <Route path="/documentation" element={<Documentation />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<div>Dashboard Admin</div>} />
