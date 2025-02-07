@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface TemplateGenerationData {
@@ -19,11 +20,16 @@ export async function generateTemplate(data: TemplateGenerationData) {
 
     if (response.error) {
       console.error('Template generation error:', response.error);
-      throw response.error;
+      throw new Error(response.error.message || 'Failed to generate template');
     }
 
-    console.log('Generated template:', response.data);
-    return response.data;
+    if (!response.data?.template) {
+      console.error('Invalid template response:', response.data);
+      throw new Error('Invalid template response from server');
+    }
+
+    console.log('Generated template:', response.data.template);
+    return response.data.template;
   } catch (error) {
     console.error('Error generating template:', error);
     throw error;

@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
 
@@ -32,6 +33,8 @@ serve(async (req) => {
     
     The response should be a valid JSON object with these sections.`
 
+    console.log('Generating template with data:', data);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -39,7 +42,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
@@ -49,6 +52,12 @@ serve(async (req) => {
     })
 
     const result = await response.json()
+    
+    if (!result.choices || !result.choices[0]?.message?.content) {
+      console.error('Invalid response from OpenAI:', result);
+      throw new Error('Failed to generate template content');
+    }
+
     const template = result.choices[0].message.content
 
     // Log the generated template for debugging
@@ -61,7 +70,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ error: 'Failed to generate template' }),
+      JSON.stringify({ error: 'Failed to generate template: ' + error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
