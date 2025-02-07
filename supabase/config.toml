@@ -1,3 +1,4 @@
+
 project_id = "tqdoakirwvbyekhubwuz"
 
 [api]
@@ -7,3 +8,12 @@ schemas = ["public", "storage"]
 
 [functions.generate-template]
 verify_jwt = true
+
+[functions.create-stripe-customer]
+verify_jwt = true
+
+[functions.create-subscription]
+verify_jwt = true
+
+[functions.webhook-stripe]
+verify_jwt = false
