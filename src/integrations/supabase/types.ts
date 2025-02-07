@@ -131,6 +131,7 @@ export type Database = {
           id: string
           priority: string | null
           profile_id: string
+          responses: Json | null
           status: string | null
           subject: string
           updated_at: string
@@ -141,6 +142,7 @@ export type Database = {
           id?: string
           priority?: string | null
           profile_id: string
+          responses?: Json | null
           status?: string | null
           subject: string
           updated_at?: string
@@ -151,6 +153,7 @@ export type Database = {
           id?: string
           priority?: string | null
           profile_id?: string
+          responses?: Json | null
           status?: string | null
           subject?: string
           updated_at?: string
