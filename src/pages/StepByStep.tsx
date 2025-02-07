@@ -1,12 +1,14 @@
 
-import { Check } from "lucide-react";
+import { Check, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
 
 interface Task {
   name: string;
   status: 'not_started' | 'in_progress' | 'completed';
+  link?: string;
   id?: string;
 }
 
@@ -20,41 +22,41 @@ export default function StepByStep() {
     {
       title: "I. Site Público",
       tasks: [
-        { name: "Página Inicial - Banner Principal", status: "completed" },
-        { name: "Seção 'Como Funciona' (3 Passos)", status: "completed" },
-        { name: "Seção 'Templates'", status: "completed" },
-        { name: "Seção 'Planos e Preços' (4 Planos)", status: "completed" },
-        { name: "Seção 'Depoimentos'", status: "completed" },
-        { name: "Seção 'FAQ'", status: "completed" },
-        { name: "Rodapé", status: "completed" },
+        { name: "Página Inicial - Banner Principal", status: "completed", link: "/" },
+        { name: "Seção 'Como Funciona' (3 Passos)", status: "completed", link: "/#features" },
+        { name: "Seção 'Templates'", status: "completed", link: "/#templates" },
+        { name: "Seção 'Planos e Preços' (4 Planos)", status: "completed", link: "/#pricing" },
+        { name: "Seção 'Depoimentos'", status: "completed", link: "/#testimonials" },
+        { name: "Seção 'FAQ'", status: "completed", link: "/#faq" },
+        { name: "Rodapé", status: "completed", link: "/" },
         { name: "Página de Funcionalidades", status: "not_started" },
-        { name: "Página de Templates - Galeria", status: "completed" },
-        { name: "Página de Questionário (8 páginas)", status: "completed" },
+        { name: "Página de Templates - Galeria", status: "completed", link: "/templates" },
+        { name: "Página de Questionário (8 páginas)", status: "completed", link: "/questionnaire" },
         { name: "Página de Escolha de Domínio", status: "not_started" },
-        { name: "Página de Planos e Preços Detalhada", status: "completed" },
+        { name: "Página de Planos e Preços Detalhada", status: "completed", link: "/pricing" },
         { name: "Termos de Uso e Política de Privacidade", status: "not_started" }
       ]
     },
     {
       title: "II. Área do Cliente",
       tasks: [
-        { name: "Dashboard Principal", status: "completed" },
-        { name: "Editor de Landing Page (Templates e Assets)", status: "completed" },
-        { name: "Editor de Landing Page (IA)", status: "completed" },
-        { name: "Configurações de Domínio", status: "not_started" },
+        { name: "Dashboard Principal", status: "completed", link: "/dashboard" },
+        { name: "Editor de Landing Page (Templates e Assets)", status: "completed", link: "/dashboard/editor" },
+        { name: "Editor de Landing Page (IA)", status: "completed", link: "/dashboard/editor/ai" },
+        { name: "Configurações de Domínio", status: "not_started", link: "/dashboard/settings/domains" },
         { name: "Configurações de E-mail (Futuro)", status: "not_started" },
-        { name: "Área de Suporte", status: "not_started" }
+        { name: "Área de Suporte", status: "not_started", link: "/dashboard/support" }
       ]
     },
     {
       title: "III. Backend e Funcionalidades Internas",
       tasks: [
-        { name: "IA Engine para Geração de Landing Pages", status: "completed" },
-        { name: "Biblioteca de Swiper Files", status: "completed" },
-        { name: "Lógica do Questionário", status: "completed" },
-        { name: "Sistema de Templates", status: "completed" },
-        { name: "Autenticação e Gerenciamento de Usuários", status: "completed" },
-        { name: "Processamento de Pagamentos e Assinaturas", status: "not_started" },
+        { name: "IA Engine para Geração de Landing Pages", status: "completed", link: "/database-docs" },
+        { name: "Biblioteca de Swiper Files", status: "completed", link: "/dashboard/swipe-files" },
+        { name: "Lógica do Questionário", status: "completed", link: "/questionnaire" },
+        { name: "Sistema de Templates", status: "completed", link: "/templates" },
+        { name: "Autenticação e Gerenciamento de Usuários", status: "completed", link: "/auth" },
+        { name: "Processamento de Pagamentos e Assinaturas", status: "not_started", link: "/dashboard/settings/billing" },
         { name: "Sistema de Gerenciamento de Domínios", status: "not_started" },
         { name: "Infraestrutura de Hospedagem", status: "completed" },
         { name: "Sistema de Análise e Relatórios (Futuro)", status: "not_started" }
@@ -63,27 +65,27 @@ export default function StepByStep() {
     {
       title: "IV. Dashboard Administrativo",
       tasks: [
-        { name: "Gerenciamento de Usuários", status: "not_started" },
-        { name: "Gerenciamento de Landing Pages", status: "not_started" },
-        { name: "Gerenciamento de Templates", status: "completed" },
-        { name: "Gerenciamento de Swiper Files", status: "completed" },
-        { name: "Gerenciamento de Depoimentos", status: "completed" },
-        { name: "Gerenciamento de FAQs", status: "completed" },
-        { name: "Gerenciamento de Planos de Assinatura", status: "not_started" },
-        { name: "Gerenciamento de Assinaturas e Pagamentos", status: "not_started" },
-        { name: "Configurações Gerais da Plataforma", status: "not_started" }
+        { name: "Gerenciamento de Usuários", status: "not_started", link: "/admin/users" },
+        { name: "Gerenciamento de Landing Pages", status: "not_started", link: "/admin/landing-pages" },
+        { name: "Gerenciamento de Templates", status: "completed", link: "/admin/templates" },
+        { name: "Gerenciamento de Swiper Files", status: "completed", link: "/admin/swipe-files" },
+        { name: "Gerenciamento de Depoimentos", status: "completed", link: "/admin/testimonials" },
+        { name: "Gerenciamento de FAQs", status: "completed", link: "/admin/faqs" },
+        { name: "Gerenciamento de Planos de Assinatura", status: "not_started", link: "/admin/plans" },
+        { name: "Gerenciamento de Assinaturas e Pagamentos", status: "not_started", link: "/admin/subscriptions" },
+        { name: "Configurações Gerais da Plataforma", status: "not_started", link: "/admin/settings" }
       ]
     },
     {
       title: "V. Sistema de Criação de Landing Pages",
       tasks: [
-        { name: "Questionário de Coleta de Informações", status: "completed" },
-        { name: "Geração de Template com IA", status: "completed" },
-        { name: "Editor Visual de Landing Pages", status: "completed" },
-        { name: "Sistema de Preview em Tempo Real", status: "completed" },
-        { name: "Gerenciamento de Assets e Mídia", status: "completed" },
-        { name: "Sistema de Publicação", status: "completed" },
-        { name: "Personalização de Domínio", status: "not_started" },
+        { name: "Questionário de Coleta de Informações", status: "completed", link: "/questionnaire" },
+        { name: "Geração de Template com IA", status: "completed", link: "/dashboard/editor/ai" },
+        { name: "Editor Visual de Landing Pages", status: "completed", link: "/dashboard/editor" },
+        { name: "Sistema de Preview em Tempo Real", status: "completed", link: "/dashboard/editor" },
+        { name: "Gerenciamento de Assets e Mídia", status: "completed", link: "/dashboard/editor/assets" },
+        { name: "Sistema de Publicação", status: "completed", link: "/dashboard/editor/publish" },
+        { name: "Personalização de Domínio", status: "not_started", link: "/dashboard/settings/domains" },
         { name: "Analytics e Métricas (Futuro)", status: "not_started" }
       ]
     }
@@ -188,11 +190,22 @@ export default function StepByStep() {
                         >
                           <Check className="h-4 w-4" />
                         </button>
-                        <span className={`text-gray-600 ${
-                          task.status === 'completed' ? 'line-through' : ''
-                        }`}>
-                          {task.name}
-                        </span>
+                        <div className="flex-1 flex items-center justify-between">
+                          <span className={`text-gray-600 ${
+                            task.status === 'completed' ? 'line-through' : ''
+                          }`}>
+                            {task.name}
+                          </span>
+                          {task.link && (
+                            <Link 
+                              to={task.link}
+                              className="ml-2 text-primary hover:text-primary/80 flex items-center gap-1"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              <span className="text-sm">Acessar</span>
+                            </Link>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -211,3 +224,4 @@ export default function StepByStep() {
     </div>
   );
 }
+

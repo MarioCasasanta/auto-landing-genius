@@ -1,8 +1,79 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface TableRelation {
+  table: string;
+  pages: string[];
+  description: string;
+  operations: string[];
+}
 
 export default function DatabaseDocs() {
+  const tableRelations: TableRelation[] = [
+    {
+      table: "profiles",
+      pages: ["/auth", "/dashboard", "/dashboard/settings"],
+      description: "Armazena informações do perfil do usuário",
+      operations: ["Criado após autenticação", "Leitura no dashboard", "Atualização nas configurações"]
+    },
+    {
+      table: "landing_pages",
+      pages: ["/dashboard/editor", "/questionnaire", "/dashboard"],
+      description: "Armazena as landing pages criadas pelos usuários",
+      operations: ["Criação via questionário", "Edição no editor", "Listagem no dashboard"]
+    },
+    {
+      table: "landing_page_elements",
+      pages: ["/dashboard/editor"],
+      description: "Armazena os elementos individuais de cada landing page",
+      operations: ["Criação/edição no editor", "Leitura durante preview"]
+    },
+    {
+      table: "templates",
+      pages: ["/templates", "/dashboard/editor", "/admin/templates"],
+      description: "Modelos de landing pages disponíveis",
+      operations: ["Listagem na galeria", "Seleção no editor", "Gerenciamento no admin"]
+    },
+    {
+      table: "implementation_progress",
+      pages: ["/step-by-step"],
+      description: "Acompanhamento do progresso de implementação",
+      operations: ["Leitura e atualização na página de progresso"]
+    },
+    {
+      table: "admin_users",
+      pages: ["/admin/*"],
+      description: "Usuários com privilégios administrativos",
+      operations: ["Verificação de permissões em áreas admin"]
+    },
+    {
+      table: "payment_plans",
+      pages: ["/pricing", "/dashboard/settings/billing", "/admin/plans"],
+      description: "Planos de pagamento disponíveis",
+      operations: ["Exibição na página de preços", "Seleção nas configurações", "Gerenciamento no admin"]
+    },
+    {
+      table: "subscriptions",
+      pages: ["/dashboard/settings/billing", "/admin/subscriptions"],
+      description: "Assinaturas dos usuários",
+      operations: ["Criação/atualização nas configurações", "Gerenciamento no admin"]
+    },
+    {
+      table: "support_tickets",
+      pages: ["/dashboard/support", "/admin/support"],
+      description: "Tickets de suporte",
+      operations: ["Criação/visualização pelo usuário", "Gerenciamento no admin"]
+    },
+    {
+      table: "swipe_files",
+      pages: ["/dashboard/swipe-files", "/admin/swipe-files"],
+      description: "Arquivos de swipe (exemplos e inspirações)",
+      operations: ["Visualização no dashboard", "Gerenciamento no admin"]
+    }
+  ];
+
   const tables = [
     {
       name: "profiles",
@@ -106,6 +177,48 @@ export default function DatabaseDocs() {
 
           <Card>
             <CardHeader>
+              <CardTitle>Mapeamento Tabelas x Páginas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[500px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tabela</TableHead>
+                      <TableHead>Páginas</TableHead>
+                      <TableHead>Descrição</TableHead>
+                      <TableHead>Operações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tableRelations.map((relation) => (
+                      <TableRow key={relation.table}>
+                        <TableCell className="font-medium">{relation.table}</TableCell>
+                        <TableCell>
+                          <ul className="list-disc list-inside">
+                            {relation.pages.map((page, index) => (
+                              <li key={index} className="text-sm text-gray-600">{page}</li>
+                            ))}
+                          </ul>
+                        </TableCell>
+                        <TableCell>{relation.description}</TableCell>
+                        <TableCell>
+                          <ul className="list-disc list-inside">
+                            {relation.operations.map((op, index) => (
+                              <li key={index} className="text-sm text-gray-600">{op}</li>
+                            ))}
+                          </ul>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Tabelas e Relacionamentos</CardTitle>
             </CardHeader>
             <CardContent>
@@ -138,7 +251,7 @@ export default function DatabaseDocs() {
 
           <Card className="mt-8">
             <CardHeader>
-              <CardTitle>Notas Importantes</CardTitle>
+              <CardTitle>Boas Práticas de Desenvolvimento</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="list-disc list-inside space-y-2 text-gray-600">
@@ -146,6 +259,11 @@ export default function DatabaseDocs() {
                 <li>A maioria das tabelas usa UUID como chave primária</li>
                 <li>O campo profile_id é usado como chave estrangeira para relacionar entidades com usuários</li>
                 <li>Alguns relacionamentos são feitos através de campos de texto (ex: plan_type) em vez de chaves estrangeiras diretas</li>
+                <li>Manter a documentação atualizada quando houver mudanças no schema</li>
+                <li>Seguir o padrão de nomenclatura estabelecido para novas tabelas e colunas</li>
+                <li>Implementar políticas RLS (Row Level Security) para todas as tabelas que contêm dados sensíveis</li>
+                <li>Usar migrations para todas as alterações no banco de dados</li>
+                <li>Testar queries complexas no ambiente de desenvolvimento antes de aplicar em produção</li>
               </ul>
             </CardContent>
           </Card>
