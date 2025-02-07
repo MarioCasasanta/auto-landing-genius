@@ -19,6 +19,9 @@ export default function Support() {
   const { data: tickets, refetch } = useQuery({
     queryKey: ["support-tickets"],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { data, error } = await supabase
         .from("support_tickets")
         .select("*")
@@ -34,14 +37,18 @@ export default function Support() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("support_tickets").insert([
-        {
-          subject,
-          description,
-          status: "open",
-          priority: "medium",
-        },
-      ]);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("No user found");
+      }
+
+      const { error } = await supabase.from("support_tickets").insert({
+        subject,
+        description,
+        status: "open",
+        priority: "medium",
+        profile_id: user.id
+      });
 
       if (error) throw error;
 
