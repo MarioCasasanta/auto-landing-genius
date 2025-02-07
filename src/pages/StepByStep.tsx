@@ -1,4 +1,3 @@
-
 import { Check, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect } from "react";
@@ -176,7 +175,7 @@ export default function StepByStep() {
                     {step.tasks.map((task, taskIndex) => (
                       <li 
                         key={`${stepIndex}-${taskIndex}`}
-                        className="flex items-start gap-3"
+                        className="flex items-start gap-3 group"
                       >
                         <button
                           onClick={() => updateTaskStatus(stepIndex, taskIndex)}
@@ -199,7 +198,7 @@ export default function StepByStep() {
                           {task.link && (
                             <Link 
                               to={task.link}
-                              className="ml-2 text-primary hover:text-primary/80 flex items-center gap-1"
+                              className="ml-2 text-primary hover:text-primary/80 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <ExternalLink className="h-4 w-4" />
                               <span className="text-sm">Acessar</span>
@@ -224,4 +223,3 @@ export default function StepByStep() {
     </div>
   );
 }
-
