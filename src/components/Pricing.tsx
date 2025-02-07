@@ -105,7 +105,7 @@ const Pricing = () => {
                       : "bg-primary hover:bg-primary/90"
                   }`}
                 >
-                  Experimente Grátis
+                  Começar Agora
                 </Button>
               </Link>
             </div>

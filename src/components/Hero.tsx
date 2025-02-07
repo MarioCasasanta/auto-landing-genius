@@ -23,7 +23,7 @@ const Hero = () => {
               size="lg" 
               className="bg-accent hover:bg-accent/90 transition-colors text-lg py-6 px-8 rounded-xl shadow-lg hover:shadow-xl"
             >
-              Experimente Grátis por 7 Dias
+              Começar Agora
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>

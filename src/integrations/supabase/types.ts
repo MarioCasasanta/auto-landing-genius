@@ -95,6 +95,9 @@ export type Database = {
           created_at: string
           id: string
           plan_type: string
+          selected_plan: string | null
+          trial_end_date: string | null
+          trial_start_date: string | null
           updated_at: string
         }
         Insert: {
@@ -102,6 +105,9 @@ export type Database = {
           created_at?: string
           id: string
           plan_type?: string
+          selected_plan?: string | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
         }
         Update: {
@@ -109,6 +115,9 @@ export type Database = {
           created_at?: string
           id?: string
           plan_type?: string
+          selected_plan?: string | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -121,8 +130,10 @@ export type Database = {
           id: string
           plan_type: string
           profile_id: string
+          scheduled_subscription_start: string | null
           status: string
           stripe_subscription_id: string | null
+          trial_period_ends_at: string | null
           updated_at: string
         }
         Insert: {
@@ -132,8 +143,10 @@ export type Database = {
           id?: string
           plan_type: string
           profile_id: string
+          scheduled_subscription_start?: string | null
           status: string
           stripe_subscription_id?: string | null
+          trial_period_ends_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -143,8 +156,10 @@ export type Database = {
           id?: string
           plan_type?: string
           profile_id?: string
+          scheduled_subscription_start?: string | null
           status?: string
           stripe_subscription_id?: string | null
+          trial_period_ends_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -280,7 +295,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_trial_end_date: {
+        Args: {
+          start_date: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       landing_page_objective:
