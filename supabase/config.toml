@@ -9,11 +9,5 @@ schemas = ["public", "storage"]
 [functions.generate-template]
 verify_jwt = true
 
-[functions.create-stripe-customer]
+[functions.generate-content]
 verify_jwt = true
-
-[functions.create-subscription]
-verify_jwt = true
-
-[functions.webhook-stripe]
-verify_jwt = false
