@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import Questionnaire from "./pages/Questionnaire";
 import Auth from "./pages/Auth";
 import StepByStep from "./pages/StepByStep";
+import DatabaseDocs from "./pages/DatabaseDocs";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/questionnaire" element={<Questionnaire />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/step-by-step" element={<StepByStep />} />
+          <Route path="/database-docs" element={<DatabaseDocs />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
