@@ -67,6 +67,8 @@ export default function StepByStep() {
         { name: "Gerenciamento de Landing Pages", status: "not_started" },
         { name: "Gerenciamento de Templates", status: "completed" },
         { name: "Gerenciamento de Swiper Files", status: "completed" },
+        { name: "Gerenciamento de Depoimentos", status: "not_started" },
+        { name: "Gerenciamento de FAQs", status: "not_started" },
         { name: "Gerenciamento de Planos de Assinatura", status: "not_started" },
         { name: "Gerenciamento de Assinaturas e Pagamentos", status: "not_started" },
         { name: "Configurações Gerais da Plataforma", status: "not_started" }
