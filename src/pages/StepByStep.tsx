@@ -67,11 +67,24 @@ export default function StepByStep() {
         { name: "Gerenciamento de Landing Pages", status: "not_started" },
         { name: "Gerenciamento de Templates", status: "completed" },
         { name: "Gerenciamento de Swiper Files", status: "completed" },
-        { name: "Gerenciamento de Depoimentos", status: "not_started" },
-        { name: "Gerenciamento de FAQs", status: "not_started" },
+        { name: "Gerenciamento de Depoimentos", status: "completed" },
+        { name: "Gerenciamento de FAQs", status: "completed" },
         { name: "Gerenciamento de Planos de Assinatura", status: "not_started" },
         { name: "Gerenciamento de Assinaturas e Pagamentos", status: "not_started" },
         { name: "Configurações Gerais da Plataforma", status: "not_started" }
+      ]
+    },
+    {
+      title: "V. Sistema de Criação de Landing Pages",
+      tasks: [
+        { name: "Questionário de Coleta de Informações", status: "completed" },
+        { name: "Geração de Template com IA", status: "completed" },
+        { name: "Editor Visual de Landing Pages", status: "completed" },
+        { name: "Sistema de Preview em Tempo Real", status: "completed" },
+        { name: "Gerenciamento de Assets e Mídia", status: "completed" },
+        { name: "Sistema de Publicação", status: "completed" },
+        { name: "Personalização de Domínio", status: "not_started" },
+        { name: "Analytics e Métricas (Futuro)", status: "not_started" }
       ]
     }
   ]);
