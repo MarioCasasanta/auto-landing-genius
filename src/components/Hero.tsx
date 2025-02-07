@@ -18,7 +18,7 @@ const Hero = () => {
             Crie landing pages de alta conversão com IA e templates validados.
             Ideal para profissionais autônomos e pequenas empresas.
           </p>
-          <Link to="/dashboard">
+          <Link to="/questionnaire">
             <Button 
               size="lg" 
               className="bg-accent hover:bg-accent/90 transition-colors text-lg py-6 px-8 rounded-xl shadow-lg hover:shadow-xl"

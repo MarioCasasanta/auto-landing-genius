@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const NavBar = () => {
@@ -17,6 +17,12 @@ const NavBar = () => {
             Preços
           </a>
           <Link to="/dashboard">
+            <Button variant="outline" className="gap-2">
+              <LogIn className="h-4 w-4" />
+              Área do Cliente
+            </Button>
+          </Link>
+          <Link to="/questionnaire">
             <Button className="bg-accent hover:bg-accent/90 transition-colors">
               Começar Agora <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
