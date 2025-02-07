@@ -9,6 +9,29 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_users_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       implementation_progress: {
         Row: {
           completed_at: string | null
@@ -133,6 +156,42 @@ export type Database = {
           },
         ]
       }
+      payment_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          features: Json
+          id: string
+          is_active: boolean | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          features: Json
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_name: string | null
@@ -140,6 +199,8 @@ export type Database = {
           id: string
           plan_type: string
           selected_plan: string | null
+          stripe_customer_id: string | null
+          subscription_status: string | null
           trial_end_date: string | null
           trial_start_date: string | null
           updated_at: string
@@ -150,6 +211,8 @@ export type Database = {
           id: string
           plan_type?: string
           selected_plan?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
           trial_end_date?: string | null
           trial_start_date?: string | null
           updated_at?: string
@@ -160,6 +223,8 @@ export type Database = {
           id?: string
           plan_type?: string
           selected_plan?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
           trial_end_date?: string | null
           trial_start_date?: string | null
           updated_at?: string
