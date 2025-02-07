@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import ImageUploader from "./ImageUploader";
+import TemplatePreview from "./TemplatePreview";
+import { generateTemplate } from "@/services/templateGeneration";
 
 interface QuestionnaireData {
   client_name: string;
@@ -35,6 +37,8 @@ export default function LandingPageQuestionnaire() {
     has_photos: false,
     show_pricing: false,
   });
+  const [generatedTemplate, setGeneratedTemplate] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -72,6 +76,33 @@ export default function LandingPageQuestionnaire() {
     }));
   };
 
+  const handleGenerateTemplate = async () => {
+    try {
+      setIsGenerating(true);
+      const template = await generateTemplate({
+        client_name: formData.client_name,
+        company_name: formData.company_name,
+        business_type: formData.business_type,
+        objective: formData.objective,
+        offer_details: formData.offer_details,
+        company_history: formData.company_history,
+      });
+      setGeneratedTemplate(template);
+      toast({
+        title: "Success!",
+        description: "Template generated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate template.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -85,6 +116,7 @@ export default function LandingPageQuestionnaire() {
         status: "draft",
         title,
         content: {
+          template: generatedTemplate,
           images: formData.uploaded_images || [],
         },
       });
@@ -103,8 +135,6 @@ export default function LandingPageQuestionnaire() {
       });
     }
   };
-
-  // ... keep existing code (renderStep function start)
 
   const renderStep = () => {
     switch (step) {
@@ -294,6 +324,34 @@ export default function LandingPageQuestionnaire() {
       case 7:
         return (
           <div className="space-y-6 animate-fade-up">
+            <h2 className="text-2xl font-bold">Template Preview</h2>
+            <p className="text-muted-foreground">
+              Review and select the AI-generated template for your landing page.
+            </p>
+            
+            <Button
+              onClick={handleGenerateTemplate}
+              disabled={isGenerating}
+              className="w-full"
+            >
+              {isGenerating ? "Generating..." : "Generate Template"}
+            </Button>
+
+            {generatedTemplate && (
+              <div className="mt-6">
+                <TemplatePreview
+                  template={generatedTemplate}
+                  isSelected={true}
+                  onSelect={() => {}}
+                />
+              </div>
+            )}
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className="space-y-6 animate-fade-up">
             <h2 className="text-2xl font-bold">Preço e Contato</h2>
             <p className="text-muted-foreground">
               Sua landing page terá informações de preço ou o foco será em gerar contato?
@@ -332,7 +390,7 @@ export default function LandingPageQuestionnaire() {
         <div className="h-2 bg-muted rounded-full">
           <div
             className="h-2 bg-primary rounded-full transition-all duration-300"
-            style={{ width: `${(step / 7) * 100}%` }}
+            style={{ width: `${(step / 8) * 100}%` }}
           />
         </div>
       </div>
@@ -349,7 +407,7 @@ export default function LandingPageQuestionnaire() {
             Anterior
           </Button>
         )}
-        {step < 7 ? (
+        {step < 8 ? (
           <Button
             className="ml-auto"
             onClick={() => setStep((prev) => prev + 1)}
@@ -361,6 +419,7 @@ export default function LandingPageQuestionnaire() {
           <Button
             className="ml-auto"
             onClick={handleSubmit}
+            disabled={!generatedTemplate}
           >
             Gerar Landing Page
             <Check className="ml-2" />
