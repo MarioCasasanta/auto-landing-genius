@@ -8,6 +8,7 @@ import {
   CreditCard,
   Settings,
   LogOut,
+  Image,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +46,10 @@ export default function AdminLayout() {
             <Link to="/admin/swipe-files" className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
               <Files className="w-5 h-5 mr-3" />
               Swipe Files
+            </Link>
+            <Link to="/admin/images" className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+              <Image className="w-5 h-5 mr-3" />
+              Imagens
             </Link>
             <Link to="/admin/subscriptions" className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
               <CreditCard className="w-5 h-5 mr-3" />

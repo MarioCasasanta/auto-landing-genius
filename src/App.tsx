@@ -13,6 +13,7 @@ import StepByStep from "./pages/StepByStep";
 import DatabaseDocs from "./pages/DatabaseDocs";
 import Admin from "./pages/Admin";
 import AdminLayout from "./components/admin/AdminLayout";
+import ImageManager from "./components/admin/ImageManager";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="swipe-files" element={<div>Gerenciamento de Swipe Files</div>} />
             <Route path="subscriptions" element={<div>Gerenciamento de Assinaturas</div>} />
             <Route path="settings" element={<div>Configurações</div>} />
+            <Route path="images" element={<ImageManager />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
