@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,11 +97,11 @@ export default function SwipeFiles() {
           .getPublicUrl(data.path);
 
         const { error: insertError } = await supabase.from("swipe_files").insert({
+          profile_id: user.id,
           title,
           description,
           category,
           file_url: publicUrl,
-          profile_id: user.id,
         });
 
         if (insertError) throw insertError;
