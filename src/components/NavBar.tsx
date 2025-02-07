@@ -16,7 +16,7 @@ const NavBar = () => {
           <a href="#pricing" className="text-gray-600 hover:text-primary transition-colors">
             Preços
           </a>
-          <Link to="/dashboard">
+          <Link to="/auth">
             <Button variant="outline" className="gap-2">
               <LogIn className="h-4 w-4" />
               Área do Cliente
