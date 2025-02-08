@@ -42,7 +42,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',  // Corrigido o nome do modelo
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
@@ -75,3 +75,4 @@ serve(async (req) => {
     )
   }
 })
+
