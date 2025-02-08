@@ -9,9 +9,9 @@ import FAQ from "@/components/FAQ";
 
 const Index = () => {
   const defaultContent = {
-    title: "Landing Pages Prontas em Minutos, Sem Você Precisar Editar Nada!",
-    description: "Crie landing pages de alta conversão com IA e templates validados. Ideal para profissionais autônomos e pequenas empresas.",
-    cta: "Começar Agora"
+    title: "Crie Landing Pages Otimizadas em Minutos",
+    description: "Responda algumas perguntas simples sobre seu negócio e deixe nossa IA criar uma landing page profissional e otimizada para conversão.",
+    cta: "Criar Minha Landing Page"
   };
 
   console.log('Index component rendering with defaultContent:', defaultContent);
