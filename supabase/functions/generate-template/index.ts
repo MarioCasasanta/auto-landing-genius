@@ -34,7 +34,6 @@ serve(async (req) => {
     logs.push(createLog('initialization', 'start'));
     console.log('Starting template generation process...');
     
-    // Verificar se a chave da API está definida
     const apiKey = Deno.env.get('OPENAI_API_KEY')
     if (!apiKey) {
       const error = 'OpenAI API key is not configured';
@@ -49,7 +48,6 @@ serve(async (req) => {
     logs.push(createLog('request_parsing', 'success', { data }));
     console.log('Received data:', data);
 
-    // Validar dados recebidos
     if (!data || !data.client_name || !data.company_name || !data.business_type || !data.objective) {
       const error = 'Missing required data for template generation';
       logs.push(createLog('data_validation', 'error', { 
@@ -88,7 +86,7 @@ serve(async (req) => {
     console.log('System prompt prepared:', systemPrompt);
 
     const requestBody = {
-      model: 'gpt-4o-mini',
+      model: "gpt-3.5-turbo",  // Corrigido para usar um modelo válido
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
@@ -140,7 +138,6 @@ serve(async (req) => {
     console.log('Generated template:', template);
 
     try {
-      // Validar JSON antes de enviar resposta
       const parsedTemplate = JSON.parse(template);
       logs.push(createLog('json_validation', 'success'));
       console.log('Template successfully parsed as JSON');
@@ -149,7 +146,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           template: parsedTemplate,
-          logs: logs // Incluir logs na resposta
+          logs: logs
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
@@ -170,7 +167,7 @@ serve(async (req) => {
         error: 'Failed to generate template',
         details: error.message,
         stack: error.stack,
-        logs: logs // Incluir logs mesmo em caso de erro
+        logs: logs
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
