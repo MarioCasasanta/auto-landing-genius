@@ -1,10 +1,16 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Hero = () => {
+  useEffect(() => {
+    console.log('Hero component mounted');
+  }, []);
+
+  console.log('Hero component rendering');
+
   return (
     <section className="pt-32 pb-20 bg-gradient-to-b from-muted to-white">
       <div className="container mx-auto px-4 text-center">
