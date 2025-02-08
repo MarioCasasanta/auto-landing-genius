@@ -42,11 +42,9 @@ serve(async (req) => {
       throw new Error(error);
     }
     logs.push(createLog('api_key_check', 'success'));
-    console.log('API key validation successful');
     
     const { data } = await req.json()
     logs.push(createLog('request_parsing', 'success', { data }));
-    console.log('Received data:', data);
 
     if (!data || !data.client_name || !data.company_name || !data.business_type || !data.objective) {
       const error = 'Missing required data for template generation';
@@ -58,33 +56,82 @@ serve(async (req) => {
           objective: !data?.objective
         }
       }));
-      console.error('Missing required data:', data);
       throw new Error(error);
     }
     logs.push(createLog('data_validation', 'success'));
-    console.log('Data validation successful');
 
-    const systemPrompt = `You are an expert landing page copywriter. Based on the business information provided, create compelling content for a landing page. Follow this EXACT structure in your JSON response:
+    const systemPrompt = `You are an expert landing page copywriter focused on creating content for professional service providers (doctors, lawyers, nutritionists, etc). Based on the business information provided, create compelling content for a landing page. Follow this EXACT structure in your JSON response:
 
 {
   "landingPage": {
     "sections": {
       "hero": {
-        "headline": "Write a short, impactful headline that addresses the main pain point or value proposition",
-        "description": "Write 1-2 sentences expanding on the headline and main benefit"
+        "headline": "Write a clear and impactful headline that highlights the main value proposition",
+        "subheadline": "Write a supporting statement that expands on the main value proposition",
+        "description": "Write 2-3 sentences explaining the services offered and their benefits"
       },
-      "features": {
-        "benefit1": {
-          "title": "Write a short benefit title focused on value to customer",
-          "description": "Write 1-2 sentences explaining this benefit"
-        },
-        "benefit2": {
-          "title": "Write a short benefit title focused on value to customer",
-          "description": "Write 1-2 sentences explaining this benefit"
-        },
-        "benefit3": {
-          "title": "Write a short benefit title focused on value to customer",
-          "description": "Write 1-2 sentences explaining this benefit"
+      "services": {
+        "title": "Write a title for the services section",
+        "description": "Write a brief introduction to the services",
+        "items": [
+          {
+            "title": "Write a service title",
+            "description": "Write a brief description of this service"
+          },
+          {
+            "title": "Write a service title",
+            "description": "Write a brief description of this service"
+          },
+          {
+            "title": "Write a service title",
+            "description": "Write a brief description of this service"
+          }
+        ]
+      },
+      "benefits": {
+        "title": "Write a title for the benefits section",
+        "items": [
+          {
+            "title": "Write a benefit title",
+            "description": "Write a brief description of this benefit"
+          },
+          {
+            "title": "Write a benefit title",
+            "description": "Write a brief description of this benefit"
+          },
+          {
+            "title": "Write a benefit title",
+            "description": "Write a brief description of this benefit"
+          }
+        ]
+      },
+      "testimonials": {
+        "title": "Write a title for the testimonials section",
+        "items": [
+          {
+            "quote": "Write a compelling testimonial quote",
+            "author": "Write a client name",
+            "role": "Write the client's role or description"
+          },
+          {
+            "quote": "Write a compelling testimonial quote",
+            "author": "Write a client name",
+            "role": "Write the client's role or description"
+          }
+        ]
+      },
+      "cta": {
+        "headline": "Write a compelling call-to-action headline",
+        "description": "Write a brief description encouraging action",
+        "buttonText": "Write the button text",
+        "contactInfo": {
+          "address": "Write a professional address format",
+          "phone": "Write a phone number format",
+          "email": "Write a professional email format",
+          "socialMedia": {
+            "instagram": "Write an Instagram handle",
+            "linkedin": "Write a LinkedIn profile URL format"
+          }
         }
       }
     }
@@ -92,25 +139,24 @@ serve(async (req) => {
 }
 
 Business Information:
-- Company Name: ${data.company_name}
-- Business Type: ${data.business_type}
+- Professional Name: ${data.client_name}
+- Business Name: ${data.company_name}
+- Professional Area: ${data.business_type}
 - Main Goal: ${data.objective}
-${data.offer_details ? `- Special Offer/Details: ${data.offer_details}` : ''}
-${data.company_history ? `- About the Company: ${data.company_history}` : ''}
+${data.offer_details ? `- Service Details: ${data.offer_details}` : ''}
+${data.company_history ? `- Professional Background: ${data.company_history}` : ''}
 
 Important Instructions:
-1. Focus the content on the main goal: ${data.objective}
-2. Use clear, direct language
-3. Each section should build on the previous one
-4. Keep the hero section focused on the main value proposition
-5. Benefits should be specific and solution-oriented
-6. DO NOT use placeholder text - write real, specific content
-7. Return ONLY the JSON - no additional text or explanations
+1. Focus on creating professional, trustworthy content
+2. Emphasize expertise and credibility
+3. Use clear, direct language that builds trust
+4. Ensure all content aligns with professional service standards
+5. DO NOT use placeholder text - write real, specific content
+6. Return ONLY the JSON - no additional text or explanations
 
 The response must strictly follow this JSON structure - no additional fields or modifications to the structure are allowed.`;
 
     logs.push(createLog('prompt_preparation', 'success', { systemPrompt }));
-    console.log('System prompt prepared:', systemPrompt);
 
     const requestBody = {
       model: "gpt-4",
@@ -122,7 +168,6 @@ The response must strictly follow this JSON structure - no additional fields or 
     };
 
     logs.push(createLog('openai_request', 'start', { requestBody }));
-    console.log('Sending request to OpenAI:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -137,62 +182,52 @@ The response must strictly follow this JSON structure - no additional fields or 
       const errorData = await response.text();
       logs.push(createLog('openai_response', 'error', { 
         status: response.status,
-        error: errorData,
-        statusText: response.statusText
-      }));
-      console.error('OpenAI API error:', {
-        status: response.status,
-        statusText: response.statusText,
         error: errorData
-      });
+      }));
       throw new Error(`OpenAI API error: ${response.status} - ${errorData}`);
     }
 
     const result = await response.json()
     logs.push(createLog('openai_response', 'success', { result }));
-    console.log('Raw OpenAI response:', result);
 
     if (!result.choices || !result.choices[0]?.message?.content) {
       const error = 'Failed to generate template content: Invalid response structure';
       logs.push(createLog('content_validation', 'error', { result }));
-      console.error('Invalid response structure from OpenAI:', result);
       throw new Error(error);
     }
 
     let template = result.choices[0].message.content;
-    
-    // Remove any markdown code block markers if present
     template = template.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     
     logs.push(createLog('template_extraction', 'success', { template }));
-    console.log('Cleaned template:', template);
 
     try {
       const parsedTemplate = JSON.parse(template);
       
       // Validate the template structure
-      if (!parsedTemplate?.landingPage?.sections?.hero?.headline) {
-        const error = 'Generated template is missing required hero section structure';
-        logs.push(createLog('template_validation', 'error', { 
-          error,
-          template: parsedTemplate
-        }));
-        throw new Error(error);
+      if (!parsedTemplate?.landingPage?.sections?.hero) {
+        throw new Error('Generated template is missing required hero section');
       }
       
-      if (!parsedTemplate?.landingPage?.sections?.features) {
-        const error = 'Generated template is missing required features section';
-        logs.push(createLog('template_validation', 'error', { 
-          error,
-          template: parsedTemplate
-        }));
-        throw new Error(error);
+      if (!parsedTemplate?.landingPage?.sections?.services) {
+        throw new Error('Generated template is missing required services section');
+      }
+
+      if (!parsedTemplate?.landingPage?.sections?.benefits) {
+        throw new Error('Generated template is missing required benefits section');
+      }
+
+      if (!parsedTemplate?.landingPage?.sections?.testimonials) {
+        throw new Error('Generated template is missing required testimonials section');
+      }
+
+      if (!parsedTemplate?.landingPage?.sections?.cta) {
+        throw new Error('Generated template is missing required CTA section');
       }
       
       logs.push(createLog('json_validation', 'success'));
-      console.log('Template successfully parsed and validated:', parsedTemplate);
-
       logs.push(createLog('process_completion', 'success'));
+
       return new Response(
         JSON.stringify({ 
           template: parsedTemplate,
@@ -205,8 +240,6 @@ The response must strictly follow this JSON structure - no additional fields or 
         error: jsonError.message,
         template
       }));
-      console.error('Error parsing or validating template JSON:', jsonError);
-      console.error('Problem template:', template);
       throw new Error('Generated content is not valid JSON or missing required structure');
     }
   } catch (error) {
@@ -214,13 +247,10 @@ The response must strictly follow this JSON structure - no additional fields or 
       error: error.message,
       stack: error.stack
     }));
-    console.error('Error in generate-template function:', error);
-    console.error('Error stack:', error.stack);
     return new Response(
       JSON.stringify({ 
         error: 'Failed to generate template',
         details: error.message,
-        stack: error.stack,
         logs: logs
       }),
       { 
@@ -230,4 +260,3 @@ The response must strictly follow this JSON structure - no additional fields or 
     )
   }
 })
-

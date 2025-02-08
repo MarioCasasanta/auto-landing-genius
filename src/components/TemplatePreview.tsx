@@ -9,20 +9,44 @@ interface Template {
     sections: {
       hero: {
         headline: string;
+        subheadline: string;
         description: string;
       };
-      features?: {
-        benefit1?: {
+      services: {
+        title: string;
+        description: string;
+        items: Array<{
           title: string;
           description: string;
-        };
-        benefit2?: {
+        }>;
+      };
+      benefits: {
+        title: string;
+        items: Array<{
           title: string;
           description: string;
-        };
-        benefit3?: {
-          title: string;
-          description: string;
+        }>;
+      };
+      testimonials: {
+        title: string;
+        items: Array<{
+          quote: string;
+          author: string;
+          role: string;
+        }>;
+      };
+      cta: {
+        headline: string;
+        description: string;
+        buttonText: string;
+        contactInfo: {
+          address: string;
+          phone: string;
+          email: string;
+          socialMedia: {
+            instagram: string;
+            linkedin: string;
+          };
         };
       };
     };
@@ -40,7 +64,7 @@ export default function TemplatePreview({ template, isSelected, onSelect }: Temp
     return null;
   }
 
-  const { hero, features } = template.landingPage.sections;
+  const { hero, services, benefits, testimonials, cta } = template.landingPage.sections;
 
   return (
     <Card 
@@ -49,14 +73,17 @@ export default function TemplatePreview({ template, isSelected, onSelect }: Temp
       }`}
       onClick={() => onSelect(template)}
     >
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h3 className="text-lg font-semibold">
-              {hero?.headline || "Template Preview"}
+      <CardContent className="p-6 space-y-6">
+        <div className="flex justify-between items-start">
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold">
+              {hero.headline}
             </h3>
+            <p className="text-lg text-muted-foreground">
+              {hero.subheadline}
+            </p>
             <p className="text-muted-foreground">
-              {hero?.description || "Click to select this template"}
+              {hero.description}
             </p>
           </div>
           {isSelected && (
@@ -64,28 +91,49 @@ export default function TemplatePreview({ template, isSelected, onSelect }: Temp
           )}
         </div>
         
-        {features && (
-          <div className="space-y-2">
-            <h4 className="font-medium">Features:</h4>
-            <ul className="list-disc list-inside space-y-1">
-              {features.benefit1 && (
-                <li key="benefit1" className="text-sm text-muted-foreground">
-                  {features.benefit1.title}
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-medium">{services.title}</h4>
+            <p className="text-sm text-muted-foreground">{services.description}</p>
+            <ul className="mt-2 space-y-1">
+              {services.items.map((service, index) => (
+                <li key={index} className="text-sm text-muted-foreground">
+                  • {service.title}
                 </li>
-              )}
-              {features.benefit2 && (
-                <li key="benefit2" className="text-sm text-muted-foreground">
-                  {features.benefit2.title}
-                </li>
-              )}
-              {features.benefit3 && (
-                <li key="benefit3" className="text-sm text-muted-foreground">
-                  {features.benefit3.title}
-                </li>
-              )}
+              ))}
             </ul>
           </div>
-        )}
+
+          <div>
+            <h4 className="font-medium">{benefits.title}</h4>
+            <ul className="mt-2 space-y-1">
+              {benefits.items.map((benefit, index) => (
+                <li key={index} className="text-sm text-muted-foreground">
+                  • {benefit.title}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-medium">{testimonials.title}</h4>
+            <div className="mt-2 space-y-2">
+              {testimonials.items.map((testimonial, index) => (
+                <div key={index} className="text-sm text-muted-foreground italic">
+                  "{testimonial.quote}" - {testimonial.author}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t">
+            <h4 className="font-medium">{cta.headline}</h4>
+            <p className="text-sm text-muted-foreground">{cta.description}</p>
+            <div className="mt-2 p-2 bg-primary/10 rounded-md">
+              <p className="text-sm font-medium">Botão: {cta.buttonText}</p>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
