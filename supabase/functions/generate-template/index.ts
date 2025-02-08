@@ -88,7 +88,7 @@ serve(async (req) => {
     console.log('System prompt prepared:', systemPrompt);
 
     const requestBody = {
-      model: 'gpt-4o-mini',
+      model: 'gpt-4',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
@@ -179,4 +179,3 @@ serve(async (req) => {
     )
   }
 })
-
