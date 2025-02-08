@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import NavBar from "@/components/NavBar";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
@@ -8,10 +8,6 @@ import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 
 const Index = () => {
-  useEffect(() => {
-    console.log('Index component mounted');
-  }, []);
-
   console.log('Index component rendering');
 
   return (

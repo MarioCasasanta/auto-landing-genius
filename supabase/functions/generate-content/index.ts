@@ -29,7 +29,36 @@ serve(async (req) => {
             role: 'system',
             content: `Você é um especialista em landing pages. 
             Gere conteúdo otimizado para landing pages com base nas solicitações do usuário.
-            Retorne sempre um objeto JSON com as seções relevantes (hero, features, about, cta, etc).`
+            O retorno DEVE sempre seguir exatamente esta estrutura JSON:
+            {
+              "hero": {
+                "title": "Título principal",
+                "description": "Descrição principal",
+                "cta": "Texto do botão"
+              },
+              "features": [
+                {
+                  "title": "Título do recurso",
+                  "description": "Descrição do recurso",
+                  "icon": "nome-do-icone"
+                }
+              ],
+              "testimonials": [
+                {
+                  "name": "Nome",
+                  "role": "Cargo",
+                  "content": "Depoimento"
+                }
+              ],
+              "faq": {
+                "questions": [
+                  {
+                    "question": "Pergunta",
+                    "answer": "Resposta"
+                  }
+                ]
+              }
+            }`
           },
           { role: 'user', content: prompt }
         ],
