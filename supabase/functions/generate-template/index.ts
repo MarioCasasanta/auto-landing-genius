@@ -98,7 +98,7 @@ Use this information to generate the content:
 ${data.offer_details ? `- Offer Details: ${data.offer_details}` : ''}
 ${data.company_history ? `- Company History: ${data.company_history}` : ''}
 
-Make sure the content is compelling and focused on the main objective. The response MUST follow the exact JSON structure shown above.`;
+Make sure the content is compelling and focused on the main objective. The response MUST follow the exact JSON structure shown above. Return ONLY the JSON structure, nothing else.`;
 
     logs.push(createLog('prompt_preparation', 'success', { systemPrompt }));
     console.log('System prompt prepared:', systemPrompt);
@@ -107,7 +107,7 @@ Make sure the content is compelling and focused on the main objective. The respo
       model: "gpt-4",
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
+        { role: 'user', content: 'Generate a landing page template following the exact JSON structure provided.' }
       ],
       temperature: 0.7,
     };
@@ -139,13 +139,10 @@ Make sure the content is compelling and focused on the main objective. The respo
       throw new Error(`OpenAI API error: ${response.status} - ${errorData}`);
     }
 
-    logs.push(createLog('openai_response', 'success', { status: response.status }));
-    console.log('OpenAI response status:', response.status);
-
     const result = await response.json()
-    logs.push(createLog('response_parsing', 'success', { result }));
-    console.log('OpenAI response received:', result);
-    
+    logs.push(createLog('openai_response', 'success', { result }));
+    console.log('Raw OpenAI response:', result);
+
     if (!result.choices || !result.choices[0]?.message?.content) {
       const error = 'Failed to generate template content: Invalid response structure';
       logs.push(createLog('content_validation', 'error', { result }));
@@ -153,20 +150,38 @@ Make sure the content is compelling and focused on the main objective. The respo
       throw new Error(error);
     }
 
-    const template = result.choices[0].message.content
+    let template = result.choices[0].message.content;
+    
+    // Remove any markdown code block markers if present
+    template = template.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    
     logs.push(createLog('template_extraction', 'success', { template }));
-    console.log('Generated template:', template);
+    console.log('Cleaned template:', template);
 
     try {
       const parsedTemplate = JSON.parse(template);
       
       // Validate the template structure
       if (!parsedTemplate?.landingPage?.sections?.hero?.headline) {
-        throw new Error('Generated template is missing required hero section structure');
+        const error = 'Generated template is missing required hero section structure';
+        logs.push(createLog('template_validation', 'error', { 
+          error,
+          template: parsedTemplate
+        }));
+        throw new Error(error);
+      }
+      
+      if (!parsedTemplate?.landingPage?.sections?.features) {
+        const error = 'Generated template is missing required features section';
+        logs.push(createLog('template_validation', 'error', { 
+          error,
+          template: parsedTemplate
+        }));
+        throw new Error(error);
       }
       
       logs.push(createLog('json_validation', 'success'));
-      console.log('Template successfully parsed as JSON');
+      console.log('Template successfully parsed and validated:', parsedTemplate);
 
       logs.push(createLog('process_completion', 'success'));
       return new Response(
@@ -177,9 +192,13 @@ Make sure the content is compelling and focused on the main objective. The respo
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     } catch (jsonError) {
-      logs.push(createLog('json_validation', 'error', { error: jsonError.message }));
-      console.error('Error parsing template JSON:', jsonError);
-      throw new Error('Generated content is not valid JSON');
+      logs.push(createLog('json_validation', 'error', { 
+        error: jsonError.message,
+        template
+      }));
+      console.error('Error parsing or validating template JSON:', jsonError);
+      console.error('Problem template:', template);
+      throw new Error('Generated content is not valid JSON or missing required structure');
     }
   } catch (error) {
     logs.push(createLog('error_handling', 'error', { 
