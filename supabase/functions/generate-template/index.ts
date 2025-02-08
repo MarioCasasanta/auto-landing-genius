@@ -13,7 +13,10 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting template generation...');
+    
     const { data } = await req.json()
+    console.log('Received data:', data);
 
     const systemPrompt = `You are an expert landing page designer. Create a complete landing page template based on the following information:
     - Client Name: ${data.client_name}
@@ -33,7 +36,7 @@ serve(async (req) => {
     
     The response should be a valid JSON object with these sections.`
 
-    console.log('Generating template with data:', data);
+    console.log('Sending request to OpenAI...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -42,7 +45,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',  // Corrigido o nome do modelo
+        model: 'gpt-4o-mini',  // Corrigido o nome do modelo
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
@@ -51,28 +54,46 @@ serve(async (req) => {
       }),
     })
 
+    console.log('OpenAI response status:', response.status);
+    
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorData}`);
+    }
+
     const result = await response.json()
+    console.log('OpenAI response received:', result);
     
     if (!result.choices || !result.choices[0]?.message?.content) {
-      console.error('Invalid response from OpenAI:', result);
-      throw new Error('Failed to generate template content');
+      console.error('Invalid response structure from OpenAI:', result);
+      throw new Error('Failed to generate template content: Invalid response structure');
     }
 
     const template = result.choices[0].message.content
+    console.log('Generated template:', template);
 
-    // Log the generated template for debugging
-    console.log('Generated template:', template)
+    // Validate JSON before sending response
+    const parsedTemplate = JSON.parse(template);
+    console.log('Template successfully parsed as JSON');
 
     return new Response(
-      JSON.stringify({ template: JSON.parse(template) }),
+      JSON.stringify({ template: parsedTemplate }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error in generate-template function:', error);
+    console.error('Error stack:', error.stack);
     return new Response(
-      JSON.stringify({ error: 'Failed to generate template: ' + error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ 
+        error: 'Failed to generate template',
+        details: error.message,
+        stack: error.stack
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+        status: 500 
+      }
     )
   }
 })
-
