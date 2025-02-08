@@ -64,41 +64,50 @@ serve(async (req) => {
     logs.push(createLog('data_validation', 'success'));
     console.log('Data validation successful');
 
-    const systemPrompt = `You are an expert landing page designer. Create a landing page template that follows this exact JSON structure:
+    const systemPrompt = `You are an expert landing page copywriter. Based on the business information provided, create compelling content for a landing page. Follow this EXACT structure in your JSON response:
+
 {
   "landingPage": {
     "sections": {
       "hero": {
-        "headline": "Compelling headline here",
-        "description": "Engaging description here"
+        "headline": "Write a short, impactful headline that addresses the main pain point or value proposition",
+        "description": "Write 1-2 sentences expanding on the headline and main benefit"
       },
       "features": {
         "benefit1": {
-          "title": "First benefit title",
-          "description": "First benefit description"
+          "title": "Write a short benefit title focused on value to customer",
+          "description": "Write 1-2 sentences explaining this benefit"
         },
         "benefit2": {
-          "title": "Second benefit title",
-          "description": "Second benefit description"
+          "title": "Write a short benefit title focused on value to customer",
+          "description": "Write 1-2 sentences explaining this benefit"
         },
         "benefit3": {
-          "title": "Third benefit title",
-          "description": "Third benefit description"
+          "title": "Write a short benefit title focused on value to customer",
+          "description": "Write 1-2 sentences explaining this benefit"
         }
       }
     }
   }
 }
 
-Use this information to generate the content:
-- Client Name: ${data.client_name}
-- Company: ${data.company_name}
+Business Information:
+- Company Name: ${data.company_name}
 - Business Type: ${data.business_type}
-- Main Objective: ${data.objective}
-${data.offer_details ? `- Offer Details: ${data.offer_details}` : ''}
-${data.company_history ? `- Company History: ${data.company_history}` : ''}
+- Main Goal: ${data.objective}
+${data.offer_details ? `- Special Offer/Details: ${data.offer_details}` : ''}
+${data.company_history ? `- About the Company: ${data.company_history}` : ''}
 
-Make sure the content is compelling and focused on the main objective. The response MUST follow the exact JSON structure shown above. Return ONLY the JSON structure, nothing else.`;
+Important Instructions:
+1. Focus the content on the main goal: ${data.objective}
+2. Use clear, direct language
+3. Each section should build on the previous one
+4. Keep the hero section focused on the main value proposition
+5. Benefits should be specific and solution-oriented
+6. DO NOT use placeholder text - write real, specific content
+7. Return ONLY the JSON - no additional text or explanations
+
+The response must strictly follow this JSON structure - no additional fields or modifications to the structure are allowed.`;
 
     logs.push(createLog('prompt_preparation', 'success', { systemPrompt }));
     console.log('System prompt prepared:', systemPrompt);
@@ -107,7 +116,7 @@ Make sure the content is compelling and focused on the main objective. The respo
       model: "gpt-4",
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: 'Generate a landing page template following the exact JSON structure provided.' }
+        { role: 'user', content: 'Generate the landing page content following the exact structure provided.' }
       ],
       temperature: 0.7,
     };
@@ -221,3 +230,4 @@ Make sure the content is compelling and focused on the main objective. The respo
     )
   }
 })
+
