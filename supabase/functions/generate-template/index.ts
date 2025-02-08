@@ -15,8 +15,22 @@ serve(async (req) => {
   try {
     console.log('Starting template generation...');
     
+    // Verificar se a chave da API está definida
+    const apiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!apiKey) {
+      console.error('OpenAI API key is not defined');
+      throw new Error('OpenAI API key is not configured');
+    }
+    console.log('API key is configured');
+    
     const { data } = await req.json()
     console.log('Received data:', data);
+
+    // Validar dados recebidos
+    if (!data || !data.client_name || !data.company_name || !data.business_type || !data.objective) {
+      console.error('Missing required data:', data);
+      throw new Error('Missing required data for template generation');
+    }
 
     const systemPrompt = `You are an expert landing page designer. Create a complete landing page template based on the following information:
     - Client Name: ${data.client_name}
@@ -37,21 +51,26 @@ serve(async (req) => {
     The response should be a valid JSON object with these sections.`
 
     console.log('Sending request to OpenAI...');
+    console.log('System prompt:', systemPrompt);
+
+    const requestBody = {
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
+      ],
+      temperature: 0.7,
+    };
+
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',  // Corrigido o nome do modelo
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: 'Generate a complete landing page template structure optimized for conversion' }
-        ],
-        temperature: 0.7,
-      }),
+      body: JSON.stringify(requestBody),
     })
 
     console.log('OpenAI response status:', response.status);
@@ -73,14 +92,19 @@ serve(async (req) => {
     const template = result.choices[0].message.content
     console.log('Generated template:', template);
 
-    // Validate JSON before sending response
-    const parsedTemplate = JSON.parse(template);
-    console.log('Template successfully parsed as JSON');
+    try {
+      // Validar JSON antes de enviar resposta
+      const parsedTemplate = JSON.parse(template);
+      console.log('Template successfully parsed as JSON');
 
-    return new Response(
-      JSON.stringify({ template: parsedTemplate }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+      return new Response(
+        JSON.stringify({ template: parsedTemplate }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    } catch (jsonError) {
+      console.error('Error parsing template JSON:', jsonError);
+      throw new Error('Generated content is not valid JSON');
+    }
   } catch (error) {
     console.error('Error in generate-template function:', error);
     console.error('Error stack:', error.stack);
