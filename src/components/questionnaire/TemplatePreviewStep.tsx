@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import TemplatePreview from "../TemplatePreview";
@@ -25,7 +26,7 @@ export default function TemplatePreviewStep({
         disabled={isGenerating}
         className="w-full"
       >
-        {isGenerating ? "Generating..." : "Generate Template"}
+        {isGenerating ? "Gerando..." : "Gere minha landing page"}
       </Button>
 
       {generatedTemplate && (
