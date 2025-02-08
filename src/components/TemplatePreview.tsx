@@ -1,19 +1,31 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 
 interface Template {
-  id: string;
-  content: {
-    hero?: {
-      title?: string;
-      description?: string;
+  id?: string;
+  landingPage: {
+    sections: {
+      hero: {
+        headline: string;
+        description: string;
+      };
+      features?: {
+        benefit1?: {
+          title: string;
+          description: string;
+        };
+        benefit2?: {
+          title: string;
+          description: string;
+        };
+        benefit3?: {
+          title: string;
+          description: string;
+        };
+      };
     };
-    features?: Array<{
-      title: string;
-      description: string;
-    }>;
   };
 }
 
@@ -24,6 +36,12 @@ interface TemplatePreviewProps {
 }
 
 export default function TemplatePreview({ template, isSelected, onSelect }: TemplatePreviewProps) {
+  if (!template?.landingPage?.sections) {
+    return null;
+  }
+
+  const { hero, features } = template.landingPage.sections;
+
   return (
     <Card 
       className={`cursor-pointer transition-all hover:border-primary ${
@@ -35,10 +53,10 @@ export default function TemplatePreview({ template, isSelected, onSelect }: Temp
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-lg font-semibold">
-              {template.content.hero?.title || "Template Preview"}
+              {hero?.headline || "Template Preview"}
             </h3>
             <p className="text-muted-foreground">
-              {template.content.hero?.description || "Click to select this template"}
+              {hero?.description || "Click to select this template"}
             </p>
           </div>
           {isSelected && (
@@ -46,15 +64,25 @@ export default function TemplatePreview({ template, isSelected, onSelect }: Temp
           )}
         </div>
         
-        {template.content.features && (
+        {features && (
           <div className="space-y-2">
             <h4 className="font-medium">Features:</h4>
             <ul className="list-disc list-inside space-y-1">
-              {template.content.features.slice(0, 3).map((feature, index) => (
-                <li key={index} className="text-sm text-muted-foreground">
-                  {feature.title}
+              {features.benefit1 && (
+                <li key="benefit1" className="text-sm text-muted-foreground">
+                  {features.benefit1.title}
                 </li>
-              ))}
+              )}
+              {features.benefit2 && (
+                <li key="benefit2" className="text-sm text-muted-foreground">
+                  {features.benefit2.title}
+                </li>
+              )}
+              {features.benefit3 && (
+                <li key="benefit3" className="text-sm text-muted-foreground">
+                  {features.benefit3.title}
+                </li>
+              )}
             </ul>
           </div>
         )}
