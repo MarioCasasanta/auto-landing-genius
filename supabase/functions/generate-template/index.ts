@@ -64,23 +64,41 @@ serve(async (req) => {
     logs.push(createLog('data_validation', 'success'));
     console.log('Data validation successful');
 
-    const systemPrompt = `You are an expert landing page designer. Create a complete landing page template based on the following information:
-    - Client Name: ${data.client_name}
-    - Company: ${data.company_name}
-    - Business Type: ${data.business_type}
-    - Main Objective: ${data.objective}
-    ${data.offer_details ? `- Offer Details: ${data.offer_details}` : ''}
-    ${data.company_history ? `- Company History: ${data.company_history}` : ''}
-    
-    Generate a JSON structure that includes:
-    1. Hero section with compelling headline and description
-    2. Features section highlighting main benefits
-    3. About section using company history if available
-    4. Call-to-action sections optimized for the main objective
-    5. Testimonials section structure
-    6. Contact/Form section based on the objective
-    
-    The response should be a valid JSON object with these sections.`;
+    const systemPrompt = `You are an expert landing page designer. Create a landing page template that follows this exact JSON structure:
+{
+  "landingPage": {
+    "sections": {
+      "hero": {
+        "headline": "Compelling headline here",
+        "description": "Engaging description here"
+      },
+      "features": {
+        "benefit1": {
+          "title": "First benefit title",
+          "description": "First benefit description"
+        },
+        "benefit2": {
+          "title": "Second benefit title",
+          "description": "Second benefit description"
+        },
+        "benefit3": {
+          "title": "Third benefit title",
+          "description": "Third benefit description"
+        }
+      }
+    }
+  }
+}
+
+Use this information to generate the content:
+- Client Name: ${data.client_name}
+- Company: ${data.company_name}
+- Business Type: ${data.business_type}
+- Main Objective: ${data.objective}
+${data.offer_details ? `- Offer Details: ${data.offer_details}` : ''}
+${data.company_history ? `- Company History: ${data.company_history}` : ''}
+
+Make sure the content is compelling and focused on the main objective. The response MUST follow the exact JSON structure shown above.`;
 
     logs.push(createLog('prompt_preparation', 'success', { systemPrompt }));
     console.log('System prompt prepared:', systemPrompt);
@@ -141,6 +159,12 @@ serve(async (req) => {
 
     try {
       const parsedTemplate = JSON.parse(template);
+      
+      // Validate the template structure
+      if (!parsedTemplate?.landingPage?.sections?.hero?.headline) {
+        throw new Error('Generated template is missing required hero section structure');
+      }
+      
       logs.push(createLog('json_validation', 'success'));
       console.log('Template successfully parsed as JSON');
 
