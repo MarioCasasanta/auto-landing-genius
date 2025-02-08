@@ -14,6 +14,7 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json()
+    console.log('Received prompt:', prompt);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -22,7 +23,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
@@ -35,8 +36,21 @@ serve(async (req) => {
       }),
     })
 
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('OpenAI API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error
+      });
+      throw new Error(`OpenAI API error: ${response.status} - ${error}`);
+    }
+
     const result = await response.json()
+    console.log('OpenAI response:', result);
+
     const content = JSON.parse(result.choices[0].message.content)
+    console.log('Parsed content:', content);
 
     return new Response(
       JSON.stringify({ content }),
@@ -45,7 +59,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ error: 'Failed to generate content' }),
+      JSON.stringify({ 
+        error: 'Failed to generate content',
+        details: error.message
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
