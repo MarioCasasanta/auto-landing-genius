@@ -30,6 +30,7 @@ export const useQuestionnaireSubmit = () => {
         description: "Template gerado com sucesso.",
       });
     } catch (error) {
+      console.error("Error generating template:", error);
       toast({
         title: "Erro",
         description: "Falha ao gerar o template.",
@@ -45,43 +46,52 @@ export const useQuestionnaireSubmit = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Não autenticado");
 
-      // Start trial period
-      const now = new Date().toISOString();
+      // Insert questionnaire data
+      const { error: questionnaireError } = await supabase
+        .from("questionnaires")
+        .insert({
+          profile_id: user.id,
+          client_name: formData.client_name,
+          company_name: formData.company_name,
+          business_type: formData.business_type,
+          objective: formData.objective,
+          objective_other: formData.objective_other,
+          offer_details: formData.offer_details,
+          has_photos: formData.has_photos,
+          uploaded_images: formData.uploaded_images,
+          additional_comments: formData.additional_comments,
+          company_history: formData.company_history,
+          show_pricing: formData.show_pricing,
+          pricing_details: formData.pricing_details,
+          selected_plan: formData.selected_plan,
+          generated_content: generatedTemplate,
+          status: "draft"
+        });
+
+      if (questionnaireError) throw questionnaireError;
+
+      // Update profile with selected plan
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
-          trial_start_date: now,
+          trial_start_date: new Date().toISOString(),
           selected_plan: formData.selected_plan,
         })
         .eq("id", user.id);
 
       if (profileError) throw profileError;
 
-      // Create landing page
-      const title = `${formData.company_name} - ${formData.business_type} Landing Page`;
-      const { error: landingPageError } = await supabase.from("landing_pages").insert({
-        ...formData,
-        profile_id: user.id,
-        status: "draft",
-        title,
-        content: {
-          template: generatedTemplate,
-          images: formData.uploaded_images || [],
-        },
-      });
-
-      if (landingPageError) throw landingPageError;
-
       toast({
         title: "Sucesso!",
-        description: "Sua landing page está sendo gerada.",
+        description: "Seu questionário foi salvo com sucesso.",
       });
       
       navigate("/dashboard");
     } catch (error) {
+      console.error("Error submitting questionnaire:", error);
       toast({
         title: "Erro",
-        description: "Falha ao criar landing page.",
+        description: "Falha ao salvar o questionário.",
         variant: "destructive",
       });
     }

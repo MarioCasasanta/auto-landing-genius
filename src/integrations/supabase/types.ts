@@ -359,6 +359,80 @@ export type Database = {
         }
         Relationships: []
       }
+      questionnaires: {
+        Row: {
+          additional_comments: string | null
+          business_type: string
+          client_name: string
+          company_history: string | null
+          company_name: string
+          created_at: string
+          generated_content: Json | null
+          has_photos: boolean | null
+          id: string
+          objective: string
+          objective_other: string | null
+          offer_details: string | null
+          pricing_details: string | null
+          profile_id: string | null
+          selected_plan: string | null
+          show_pricing: boolean | null
+          status: string
+          updated_at: string
+          uploaded_images: string[] | null
+        }
+        Insert: {
+          additional_comments?: string | null
+          business_type: string
+          client_name: string
+          company_history?: string | null
+          company_name: string
+          created_at?: string
+          generated_content?: Json | null
+          has_photos?: boolean | null
+          id?: string
+          objective: string
+          objective_other?: string | null
+          offer_details?: string | null
+          pricing_details?: string | null
+          profile_id?: string | null
+          selected_plan?: string | null
+          show_pricing?: boolean | null
+          status?: string
+          updated_at?: string
+          uploaded_images?: string[] | null
+        }
+        Update: {
+          additional_comments?: string | null
+          business_type?: string
+          client_name?: string
+          company_history?: string | null
+          company_name?: string
+          created_at?: string
+          generated_content?: Json | null
+          has_photos?: boolean | null
+          id?: string
+          objective?: string
+          objective_other?: string | null
+          offer_details?: string | null
+          pricing_details?: string | null
+          profile_id?: string | null
+          selected_plan?: string | null
+          show_pricing?: boolean | null
+          status?: string
+          updated_at?: string
+          uploaded_images?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questionnaires_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string
