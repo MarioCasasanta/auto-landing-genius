@@ -60,77 +60,77 @@ serve(async (req) => {
     }
     logs.push(createLog('data_validation', 'success'));
 
-    const systemPrompt = `You are an expert landing page copywriter focused on creating content for professional service providers (doctors, lawyers, nutritionists, etc). Based on the business information provided, create compelling content for a landing page. Follow this EXACT structure in your JSON response:
+    const systemPrompt = `Você é um copywriter especializado em criar landing pages para profissionais liberais (médicos, advogados, nutricionistas, etc). Com base nas informações fornecidas sobre o negócio, crie um conteúdo envolvente para uma landing page seguindo EXATAMENTE esta estrutura JSON:
 
 {
   "landingPage": {
     "sections": {
       "hero": {
-        "headline": "Write a clear and impactful headline that highlights the main value proposition",
-        "subheadline": "Write a supporting statement that expands on the main value proposition",
-        "description": "Write 2-3 sentences explaining the services offered and their benefits"
+        "headline": "Um título principal impactante que transmita a principal proposta de valor (máximo 10 palavras)",
+        "subheadline": "Um subtítulo que expanda a proposta de valor principal (máximo 15 palavras)",
+        "description": "2-3 frases explicando os serviços oferecidos e seus benefícios"
       },
       "services": {
-        "title": "Write a title for the services section",
-        "description": "Write a brief introduction to the services",
+        "title": "Um título atraente para a seção de serviços",
+        "description": "Uma breve introdução aos serviços oferecidos",
         "items": [
           {
-            "title": "Write a service title",
-            "description": "Write a brief description of this service"
+            "title": "Nome do serviço principal",
+            "description": "Descrição detalhada deste serviço"
           },
           {
-            "title": "Write a service title",
-            "description": "Write a brief description of this service"
+            "title": "Nome do segundo serviço mais importante",
+            "description": "Descrição detalhada deste serviço"
           },
           {
-            "title": "Write a service title",
-            "description": "Write a brief description of this service"
+            "title": "Nome do terceiro serviço mais importante",
+            "description": "Descrição detalhada deste serviço"
           }
         ]
       },
       "benefits": {
-        "title": "Write a title for the benefits section",
+        "title": "Um título persuasivo para a seção de benefícios",
         "items": [
           {
-            "title": "Write a benefit title",
-            "description": "Write a brief description of this benefit"
+            "title": "Primeiro benefício/diferencial importante",
+            "description": "Explicação do benefício focada em resultados"
           },
           {
-            "title": "Write a benefit title",
-            "description": "Write a brief description of this benefit"
+            "title": "Segundo benefício/diferencial importante",
+            "description": "Explicação do benefício focada em resultados"
           },
           {
-            "title": "Write a benefit title",
-            "description": "Write a brief description of this benefit"
+            "title": "Terceiro benefício/diferencial importante",
+            "description": "Explicação do benefício focada em resultados"
           }
         ]
       },
       "testimonials": {
-        "title": "Write a title for the testimonials section",
+        "title": "Um título envolvente para a seção de depoimentos",
         "items": [
           {
-            "quote": "Write a compelling testimonial quote",
-            "author": "Write a client name",
-            "role": "Write the client's role or description"
+            "quote": "Um depoimento real e impactante",
+            "author": "Nome do cliente",
+            "role": "Descrição relevante do cliente"
           },
           {
-            "quote": "Write a compelling testimonial quote",
-            "author": "Write a client name",
-            "role": "Write the client's role or description"
+            "quote": "Outro depoimento convincente",
+            "author": "Nome do cliente",
+            "role": "Descrição relevante do cliente"
           }
         ]
       },
       "cta": {
-        "headline": "Write a compelling call-to-action headline",
-        "description": "Write a brief description encouraging action",
-        "buttonText": "Write the button text",
+        "headline": "Uma chamada para ação persuasiva",
+        "description": "Uma descrição que incentive a ação imediata",
+        "buttonText": "Texto do botão de ação principal",
         "contactInfo": {
-          "address": "Write a professional address format",
-          "phone": "Write a phone number format",
-          "email": "Write a professional email format",
+          "address": "Endereço profissional completo",
+          "phone": "Número de telefone profissional",
+          "email": "Email profissional",
           "socialMedia": {
-            "instagram": "Write an Instagram handle",
-            "linkedin": "Write a LinkedIn profile URL format"
+            "instagram": "Handle do Instagram",
+            "linkedin": "URL do perfil do LinkedIn"
           }
         }
       }
@@ -138,23 +138,23 @@ serve(async (req) => {
   }
 }
 
-Business Information:
-- Professional Name: ${data.client_name}
-- Business Name: ${data.company_name}
-- Professional Area: ${data.business_type}
-- Main Goal: ${data.objective}
-${data.offer_details ? `- Service Details: ${data.offer_details}` : ''}
-${data.company_history ? `- Professional Background: ${data.company_history}` : ''}
+Informações do Profissional:
+- Nome: ${data.client_name}
+- Nome da Empresa: ${data.company_name}
+- Área de Atuação: ${data.business_type}
+- Objetivo Principal: ${data.objective}
+${data.offer_details ? `- Detalhes dos Serviços: ${data.offer_details}` : ''}
+${data.company_history ? `- Histórico Profissional: ${data.company_history}` : ''}
 
-Important Instructions:
-1. Focus on creating professional, trustworthy content
-2. Emphasize expertise and credibility
-3. Use clear, direct language that builds trust
-4. Ensure all content aligns with professional service standards
-5. DO NOT use placeholder text - write real, specific content
-6. Return ONLY the JSON - no additional text or explanations
+Instruções Importantes:
+1. Crie conteúdo profissional e que transmita confiança
+2. Enfatize a expertise e credibilidade do profissional
+3. Use linguagem clara e direta que construa confiança
+4. Certifique-se de que todo o conteúdo esteja alinhado com padrões profissionais
+5. NÃO use textos genéricos - escreva conteúdo específico e relevante
+6. Retorne APENAS o JSON - sem texto ou explicações adicionais
 
-The response must strictly follow this JSON structure - no additional fields or modifications to the structure are allowed.`;
+A resposta deve seguir ESTRITAMENTE esta estrutura JSON - não são permitidos campos adicionais ou modificações na estrutura.`;
 
     logs.push(createLog('prompt_preparation', 'success', { systemPrompt }));
 
@@ -204,7 +204,7 @@ The response must strictly follow this JSON structure - no additional fields or 
     try {
       const parsedTemplate = JSON.parse(template);
       
-      // Validate the template structure
+      // Validação rigorosa da estrutura do template
       if (!parsedTemplate?.landingPage?.sections?.hero) {
         throw new Error('Generated template is missing required hero section');
       }
