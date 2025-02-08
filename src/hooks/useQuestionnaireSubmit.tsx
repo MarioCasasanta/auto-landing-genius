@@ -15,7 +15,19 @@ export const useQuestionnaireSubmit = () => {
     setIsGenerating: (isGenerating: boolean) => void
   ) => {
     try {
+      console.log("Starting template generation with form data:", formData);
       setIsGenerating(true);
+
+      if (!formData.client_name || !formData.company_name || !formData.business_type || !formData.objective) {
+        console.error("Missing required fields for template generation:", {
+          client_name: !formData.client_name,
+          company_name: !formData.company_name,
+          business_type: !formData.business_type,
+          objective: !formData.objective
+        });
+        throw new Error("Campos obrigatórios faltando");
+      }
+
       const template = await generateTemplate({
         client_name: formData.client_name,
         company_name: formData.company_name,
@@ -24,6 +36,8 @@ export const useQuestionnaireSubmit = () => {
         offer_details: formData.offer_details,
         company_history: formData.company_history,
       });
+
+      console.log("Template generated successfully:", template);
       setGeneratedTemplate(template);
       toast({
         title: "Sucesso!",
@@ -43,11 +57,29 @@ export const useQuestionnaireSubmit = () => {
 
   const handleSubmit = async (formData: QuestionnaireData, generatedTemplate: any) => {
     try {
+      console.log("Starting questionnaire submission with data:", { formData, generatedTemplate });
+      
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Não autenticado");
+      if (!user) {
+        console.error("No authenticated user found");
+        throw new Error("Não autenticado");
+      }
+
+      console.log("Authenticated user:", user);
+
+      // Validate required fields
+      if (!formData.client_name || !formData.company_name || !formData.business_type || !formData.objective) {
+        console.error("Missing required fields for submission:", {
+          client_name: !formData.client_name,
+          company_name: !formData.company_name,
+          business_type: !formData.business_type,
+          objective: !formData.objective
+        });
+        throw new Error("Campos obrigatórios faltando");
+      }
 
       // Insert questionnaire data
-      const { error: questionnaireError } = await supabase
+      const { data: questionnaireData, error: questionnaireError } = await supabase
         .from("questionnaires")
         .insert({
           profile_id: user.id,
@@ -66,9 +98,16 @@ export const useQuestionnaireSubmit = () => {
           selected_plan: formData.selected_plan,
           generated_content: generatedTemplate,
           status: "draft"
-        });
+        })
+        .select()
+        .single();
 
-      if (questionnaireError) throw questionnaireError;
+      if (questionnaireError) {
+        console.error("Error inserting questionnaire:", questionnaireError);
+        throw questionnaireError;
+      }
+
+      console.log("Questionnaire inserted successfully:", questionnaireData);
 
       // Update profile with selected plan
       const { error: profileError } = await supabase
@@ -79,7 +118,12 @@ export const useQuestionnaireSubmit = () => {
         })
         .eq("id", user.id);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Error updating profile:", profileError);
+        throw profileError;
+      }
+
+      console.log("Profile updated successfully");
 
       toast({
         title: "Sucesso!",
@@ -91,7 +135,7 @@ export const useQuestionnaireSubmit = () => {
       console.error("Error submitting questionnaire:", error);
       toast({
         title: "Erro",
-        description: "Falha ao salvar o questionário.",
+        description: error.message || "Falha ao salvar o questionário.",
         variant: "destructive",
       });
     }

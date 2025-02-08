@@ -17,21 +17,30 @@ export interface QuestionnaireData {
   selected_plan?: string | null;
 }
 
+const initialFormData: QuestionnaireData = {
+  client_name: "",
+  company_name: "",
+  business_type: "",
+  objective: "leads",
+  objective_other: "",
+  offer_details: "",
+  has_photos: false,
+  uploaded_images: [],
+  additional_comments: "",
+  company_history: "",
+  show_pricing: false,
+  pricing_details: "",
+  selected_plan: null,
+};
+
 export const useQuestionnaireState = () => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<QuestionnaireData>({
-    client_name: "",
-    company_name: "",
-    business_type: "",
-    objective: "leads",
-    has_photos: false,
-    show_pricing: false,
-    selected_plan: null,
-  });
+  const [formData, setFormData] = useState<QuestionnaireData>(initialFormData);
   const [generatedTemplate, setGeneratedTemplate] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    console.log("Input changed:", e.target.name, e.target.value);
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -39,6 +48,7 @@ export const useQuestionnaireState = () => {
   };
 
   const handleObjectiveChange = (value: QuestionnaireData["objective"]) => {
+    console.log("Objective changed:", value);
     setFormData((prev) => ({
       ...prev,
       objective: value,
@@ -46,6 +56,7 @@ export const useQuestionnaireState = () => {
   };
 
   const handlePhotoChange = (value: boolean) => {
+    console.log("Photo option changed:", value);
     setFormData((prev) => ({
       ...prev,
       has_photos: value,
@@ -53,6 +64,7 @@ export const useQuestionnaireState = () => {
   };
 
   const handlePricingChange = (value: boolean) => {
+    console.log("Pricing option changed:", value);
     setFormData((prev) => ({
       ...prev,
       show_pricing: value,
@@ -60,6 +72,7 @@ export const useQuestionnaireState = () => {
   };
 
   const handlePlanSelect = (plan: string) => {
+    console.log("Plan selected:", plan);
     setFormData((prev) => ({
       ...prev,
       selected_plan: plan,
@@ -67,6 +80,7 @@ export const useQuestionnaireState = () => {
   };
 
   const handleImageUpload = (urls: string[]) => {
+    console.log("Images uploaded:", urls);
     setFormData((prev) => ({
       ...prev,
       uploaded_images: urls,
