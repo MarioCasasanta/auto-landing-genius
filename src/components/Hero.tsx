@@ -13,21 +13,18 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ content }) => {
-  // Valores padrão caso o content não seja fornecido
   const defaultContent = {
     title: "Landing Pages Prontas em Minutos, Sem Você Precisar Editar Nada!",
     description: "Crie landing pages de alta conversão com IA e templates validados. Ideal para profissionais autônomos e pequenas empresas.",
     cta: "Começar Agora"
   };
 
-  // Use os valores do content se disponíveis, caso contrário use os valores padrão
-  const {
-    title = defaultContent.title,
-    description = defaultContent.description,
-    cta = defaultContent.cta
-  } = content || defaultContent;
+  // Garante que sempre teremos valores válidos, mesmo se content for undefined
+  const title = content?.title || defaultContent.title;
+  const description = content?.description || defaultContent.description;
+  const cta = content?.cta || defaultContent.cta;
 
-  console.log('Hero rendering with content:', { content, title, description, cta });
+  console.log('Hero rendering with:', { title, description, cta });
 
   return (
     <section className="pt-32 pb-20 bg-gradient-to-b from-muted to-white">
