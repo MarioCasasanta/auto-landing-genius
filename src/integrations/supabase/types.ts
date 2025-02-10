@@ -177,6 +177,7 @@ export type Database = {
       landing_pages: {
         Row: {
           additional_comments: string | null
+          analytics: Json | null
           business_type: string
           client_name: string
           color_scheme: Json | null
@@ -187,6 +188,7 @@ export type Database = {
           domain: string | null
           has_photos: boolean | null
           id: string
+          last_conversion_at: string | null
           objective: Database["public"]["Enums"]["landing_page_objective"]
           objective_other: string | null
           offer_details: string | null
@@ -202,6 +204,7 @@ export type Database = {
         }
         Insert: {
           additional_comments?: string | null
+          analytics?: Json | null
           business_type: string
           client_name: string
           color_scheme?: Json | null
@@ -212,6 +215,7 @@ export type Database = {
           domain?: string | null
           has_photos?: boolean | null
           id?: string
+          last_conversion_at?: string | null
           objective: Database["public"]["Enums"]["landing_page_objective"]
           objective_other?: string | null
           offer_details?: string | null
@@ -227,6 +231,7 @@ export type Database = {
         }
         Update: {
           additional_comments?: string | null
+          analytics?: Json | null
           business_type?: string
           client_name?: string
           color_scheme?: Json | null
@@ -237,6 +242,7 @@ export type Database = {
           domain?: string | null
           has_photos?: boolean | null
           id?: string
+          last_conversion_at?: string | null
           objective?: Database["public"]["Enums"]["landing_page_objective"]
           objective_other?: string | null
           offer_details?: string | null
