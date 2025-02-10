@@ -186,6 +186,7 @@ export type Database = {
           content: Json | null
           created_at: string
           domain: string | null
+          goals_config: Json | null
           has_photos: boolean | null
           id: string
           last_conversion_at: string | null
@@ -213,6 +214,7 @@ export type Database = {
           content?: Json | null
           created_at?: string
           domain?: string | null
+          goals_config?: Json | null
           has_photos?: boolean | null
           id?: string
           last_conversion_at?: string | null
@@ -240,6 +242,7 @@ export type Database = {
           content?: Json | null
           created_at?: string
           domain?: string | null
+          goals_config?: Json | null
           has_photos?: boolean | null
           id?: string
           last_conversion_at?: string | null
@@ -679,6 +682,7 @@ export type Database = {
         | "event"
         | "branding"
         | "other"
+      time_period: "day" | "week" | "month" | "custom"
     }
     CompositeTypes: {
       [_ in never]: never
