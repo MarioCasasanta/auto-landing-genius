@@ -195,6 +195,7 @@ export type Database = {
           offer_details: string | null
           pricing_details: string | null
           profile_id: string
+          report_config: Json | null
           show_pricing: boolean | null
           status: string | null
           style_preferences: Json | null
@@ -223,6 +224,7 @@ export type Database = {
           offer_details?: string | null
           pricing_details?: string | null
           profile_id: string
+          report_config?: Json | null
           show_pricing?: boolean | null
           status?: string | null
           style_preferences?: Json | null
@@ -251,6 +253,7 @@ export type Database = {
           offer_details?: string | null
           pricing_details?: string | null
           profile_id?: string
+          report_config?: Json | null
           show_pricing?: boolean | null
           status?: string | null
           style_preferences?: Json | null

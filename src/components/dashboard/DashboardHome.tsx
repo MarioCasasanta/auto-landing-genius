@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,8 +5,9 @@ import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Eye, MousePointerClick, ArrowUpRight, Clock, Timer, ArrowDownToLine, Map, Users } from "lucide-react";
+import { Eye, MousePointerClick, ArrowUpRight, Clock, Timer, ArrowDownToLine, Map, Users, Download } from "lucide-react";
 import { addDays, format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Label, Checkbox } from "@/components/ui/dialog";
 
 interface Analytics {
   visits: any[];
@@ -53,6 +53,15 @@ export default function DashboardHome() {
     from: startOfWeek(new Date()),
     to: endOfWeek(new Date())
   });
+  const [activeVisitors, setActiveVisitors] = useState(0);
+  const [industryBenchmarks, setIndustryBenchmarks] = useState({
+    bounceRate: 0,
+    conversionRate: 0,
+    avgTime: 0
+  });
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'csv' | 'pdf'>('csv');
+  const [exportMetrics, setExportMetrics] = useState<string[]>(['all']);
   const { toast } = useToast();
 
   const updateDateRangeByPeriod = (period: TimePeriod) => {
@@ -181,7 +190,95 @@ export default function DashboardHome() {
     fetchStats();
   }, [toast, selectedPeriod, dateRange]);
 
-  // Prepare data for charts
+  useEffect(() => {
+    const channel = supabase
+      .channel('real-time-analytics')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'landing_pages',
+          filter: `analytics->>'real_time' is not null`
+        },
+        (payload) => {
+          if (payload.new) {
+            const analytics = payload.new.analytics as any;
+            if (analytics?.real_time?.active_visitors) {
+              setActiveVisitors(analytics.real_time.active_visitors);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const exportAnalytics = async () => {
+    try {
+      const { data: pages } = await supabase
+        .from('landing_pages')
+        .select('*')
+        .eq('profile_id', (await supabase.auth.getUser()).data.user?.id);
+
+      if (!pages) return;
+
+      const exportData = pages.map(page => ({
+        title: page.title,
+        visits: page.analytics?.visits?.length || 0,
+        conversions: page.analytics?.conversions?.length || 0,
+        bounceRate: page.analytics?.bounce_rate || 0,
+        avgTimeOnPage: Object.values(page.analytics?.page_time || {}).reduce((a: number, b: number) => a + b, 0) / 
+          (page.analytics?.visits?.length || 1),
+        sources: Object.entries(page.analytics?.sources || {}).map(([source, count]) => `${source}: ${count}`).join(', '),
+        locations: Object.entries(page.analytics?.locations || {}).map(([location, count]) => `${location}: ${count}`).join(', ')
+      }));
+
+      const content = exportFormat === 'csv' 
+        ? convertToCSV(exportData)
+        : generatePDFContent(exportData);
+
+      const blob = new Blob([content], { type: exportFormat === 'csv' ? 'text/csv' : 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analytics-export-${format(new Date(), 'yyyy-MM-dd')}.${exportFormat}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Successful",
+        description: `Analytics data has been exported as ${exportFormat.toUpperCase()}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export analytics data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const convertToCSV = (data: any[]) => {
+    const headers = Object.keys(data[0]);
+    const rows = data.map(obj => headers.map(header => obj[header]));
+    return [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+  };
+
+  const generatePDFContent = (data: any[]) => {
+    // Simplified PDF content generation - in real implementation, 
+    // you would use a library like pdfmake or jspdf
+    return JSON.stringify(data, null, 2);
+  };
+
   const performanceData = stats.map(page => ({
     name: page.title,
     visits: page.analytics?.visits?.length || 0,
@@ -351,6 +448,44 @@ export default function DashboardHome() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Active Visitors
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{activeVisitors}</div>
+            <p className="text-xs text-muted-foreground">Real-time tracking</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Industry Benchmarks
+            </CardTitle>
+            <LineChart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div>
+                <span className="text-sm text-muted-foreground">Bounce Rate: </span>
+                <span className="font-medium">{industryBenchmarks.bounceRate}%</span>
+              </div>
+              <div>
+                <span className="text-sm text-muted-foreground">Conversion Rate: </span>
+                <span className="font-medium">{industryBenchmarks.conversionRate}%</span>
+              </div>
+              <div>
+                <span className="text-sm text-muted-foreground">Avg Time: </span>
+                <span className="font-medium">{Math.floor(industryBenchmarks.avgTime / 60)}m</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -403,6 +538,65 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
       </div>
+
+      <div className="mt-6 flex justify-end">
+        <Button onClick={() => setShowExportModal(true)}>
+          <Download className="mr-2 h-4 w-4" />
+          Export Analytics
+        </Button>
+      </div>
+
+      <Dialog open={showExportModal} onOpenChange={setShowExportModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Export Analytics Data</DialogTitle>
+            <DialogDescription>
+              Choose your export format and metrics
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Export Format</Label>
+              <Select value={exportFormat} onValueChange={(value: 'csv' | 'pdf') => setExportFormat(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="csv">CSV</SelectItem>
+                  <SelectItem value="pdf">PDF</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Include Metrics</Label>
+              <div className="space-y-2">
+                <Checkbox
+                  checked={exportMetrics.includes('all')}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setExportMetrics(['all']);
+                    } else {
+                      setExportMetrics([]);
+                    }
+                  }}
+                />
+                <span className="ml-2">All Metrics</span>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowExportModal(false)}>
+                Cancel
+              </Button>
+              <Button onClick={exportAnalytics}>
+                Export
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
