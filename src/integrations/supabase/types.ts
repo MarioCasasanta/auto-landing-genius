@@ -185,10 +185,13 @@ export type Database = {
           company_name: string
           content: Json | null
           created_at: string
+          custom_domain_status: string | null
+          dns_records: Json | null
           domain: string | null
           goals_config: Json | null
           has_photos: boolean | null
           id: string
+          is_custom_domain: boolean | null
           last_conversion_at: string | null
           objective: Database["public"]["Enums"]["landing_page_objective"]
           objective_other: string | null
@@ -214,10 +217,13 @@ export type Database = {
           company_name: string
           content?: Json | null
           created_at?: string
+          custom_domain_status?: string | null
+          dns_records?: Json | null
           domain?: string | null
           goals_config?: Json | null
           has_photos?: boolean | null
           id?: string
+          is_custom_domain?: boolean | null
           last_conversion_at?: string | null
           objective: Database["public"]["Enums"]["landing_page_objective"]
           objective_other?: string | null
@@ -243,10 +249,13 @@ export type Database = {
           company_name?: string
           content?: Json | null
           created_at?: string
+          custom_domain_status?: string | null
+          dns_records?: Json | null
           domain?: string | null
           goals_config?: Json | null
           has_photos?: boolean | null
           id?: string
+          is_custom_domain?: boolean | null
           last_conversion_at?: string | null
           objective?: Database["public"]["Enums"]["landing_page_objective"]
           objective_other?: string | null
@@ -438,6 +447,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "questionnaires_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_customers: {
+        Row: {
+          created_at: string
+          id: string
+          profile_id: string
+          stripe_customer_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          profile_id: string
+          stripe_customer_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          profile_id?: string
+          stripe_customer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_customers_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
