@@ -6,15 +6,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Eye, MousePointerClick, ArrowUpRight, Clock } from "lucide-react";
 
+interface Analytics {
+  visits: any[];
+  conversions: any[];
+  sources: Record<string, number>;
+  locations: Record<string, number>;
+}
+
 interface LandingPageStats {
   id: string;
   title: string;
-  analytics: {
-    visits: any[];
-    conversions: any[];
-    sources: Record<string, number>;
-    locations: Record<string, number>;
-  };
+  analytics: Analytics;
   last_conversion_at: string | null;
 }
 
@@ -38,13 +40,24 @@ export default function DashboardHome() {
 
         if (error) throw error;
 
-        setStats(data || []);
+        // Parse JSONB data from Supabase into the correct type
+        const parsedData: LandingPageStats[] = data.map(page => ({
+          ...page,
+          analytics: page.analytics ? JSON.parse(JSON.stringify(page.analytics)) : {
+            visits: [],
+            conversions: [],
+            sources: {},
+            locations: {}
+          }
+        }));
+
+        setStats(parsedData);
 
         // Calculate totals
         let visits = 0;
         let conversions = 0;
 
-        data?.forEach(page => {
+        parsedData.forEach(page => {
           visits += page.analytics?.visits?.length || 0;
           conversions += page.analytics?.conversions?.length || 0;
         });
