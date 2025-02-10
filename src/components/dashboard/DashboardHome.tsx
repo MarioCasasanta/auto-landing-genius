@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -5,9 +6,12 @@ import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Eye, MousePointerClick, ArrowUpRight, Clock, Timer, ArrowDownToLine, Map, Users, Download } from "lucide-react";
+import { Eye, MousePointerClick, ArrowUpRight, Clock, Timer, ArrowDownToLine, Map, Users, Download, LineChart as LineChartIcon } from "lucide-react";
 import { addDays, format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
-import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Label, Checkbox } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Analytics {
   visits: any[];
@@ -23,6 +27,15 @@ interface Analytics {
   daily_stats: Record<string, any>;
   weekly_stats: Record<string, any>;
   monthly_stats: Record<string, any>;
+  real_time?: {
+    active_visitors: number;
+    current_page_views: any[];
+  };
+  benchmarks?: {
+    industry_bounce_rate: number;
+    industry_conversion_rate: number;
+    industry_avg_time: number;
+  };
 }
 
 interface LandingPageStats {
@@ -104,7 +117,7 @@ export default function DashboardHome() {
 
         const parsedData: LandingPageStats[] = data.map(page => ({
           ...page,
-          analytics: page.analytics ? JSON.parse(JSON.stringify(page.analytics)) : {
+          analytics: typeof page.analytics === 'string' ? JSON.parse(page.analytics) : page.analytics || {
             visits: [],
             conversions: [],
             sources: {},
@@ -137,22 +150,23 @@ export default function DashboardHome() {
         let allLocations: Record<string, number> = {};
 
         parsedData.forEach(page => {
-          visits += page.analytics?.visits?.length || 0;
-          conversions += page.analytics?.conversions?.length || 0;
-          totalBounceRate += page.analytics?.bounce_rate || 0;
+          const analytics = page.analytics;
+          visits += analytics?.visits?.length || 0;
+          conversions += analytics?.conversions?.length || 0;
+          totalBounceRate += analytics?.bounce_rate || 0;
           
           // Aggregate time on page
-          Object.values(page.analytics?.page_time || {}).forEach(time => {
-            totalTime += time as number;
+          Object.values(analytics?.page_time || {}).forEach(time => {
+            totalTime += (time as number) || 0;
           });
 
           // Aggregate sources
-          Object.entries(page.analytics?.sources || {}).forEach(([source, count]) => {
+          Object.entries(analytics?.sources || {}).forEach(([source, count]) => {
             allSources[source] = (allSources[source] || 0) + (count as number);
           });
 
           // Aggregate locations
-          Object.entries(page.analytics?.locations || {}).forEach(([location, count]) => {
+          Object.entries(analytics?.locations || {}).forEach(([location, count]) => {
             allLocations[location] = (allLocations[location] || 0) + (count as number);
           });
         });
