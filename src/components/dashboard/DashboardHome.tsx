@@ -1,18 +1,16 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Eye, MousePointerClick, ArrowUpRight, Clock, Timer, ArrowDownToLine, Map, Users, Download, LineChart as LineChartIcon } from "lucide-react";
+import { Download } from "lucide-react";
 import { addDays, format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { type DateRange } from "react-day-picker";
+import DashboardStats from "./DashboardStats";
+import DashboardCharts from "./DashboardCharts";
+import ExportModal from "./ExportModal";
 
 interface GoalsConfig {
   visit_goal: number;
@@ -101,7 +99,6 @@ export default function DashboardHome() {
           to: endOfMonth(today)
         });
         break;
-      // 'custom' period is handled by the DatePickerWithRange component
     }
   };
 
@@ -146,7 +143,6 @@ export default function DashboardHome() {
 
         setStats(parsedData);
 
-        // Calculate totals and metrics
         let visits = 0;
         let conversions = 0;
         let totalBounceRate = 0;
@@ -156,23 +152,20 @@ export default function DashboardHome() {
 
         parsedData.forEach(page => {
           const analytics = page.analytics;
-          visits += analytics?.visits?.length || 0;
-          conversions += analytics?.conversions?.length || 0;
-          totalBounceRate += analytics?.bounce_rate || 0;
+          visits += analytics.visits?.length || 0;
+          conversions += analytics.conversions?.length || 0;
+          totalBounceRate += analytics.bounce_rate || 0;
           
-          // Aggregate time on page
-          Object.values(analytics?.page_time || {}).forEach(time => {
-            totalTime += (time as number) || 0;
+          Object.values(analytics.page_time || {}).forEach(time => {
+            totalTime += Number(time) || 0;
           });
 
-          // Aggregate sources
-          Object.entries(analytics?.sources || {}).forEach(([source, count]) => {
-            allSources[source] = (allSources[source] || 0) + (count as number);
+          Object.entries(analytics.sources || {}).forEach(([source, count]) => {
+            allSources[source] = (allSources[source] || 0) + Number(count);
           });
 
-          // Aggregate locations
-          Object.entries(analytics?.locations || {}).forEach(([location, count]) => {
-            allLocations[location] = (allLocations[location] || 0) + (count as number);
+          Object.entries(analytics.locations || {}).forEach(([location, count]) => {
+            allLocations[location] = (allLocations[location] || 0) + Number(count);
           });
         });
 
@@ -182,7 +175,6 @@ export default function DashboardHome() {
         setBounceRate(parsedData.length > 0 ? totalBounceRate / parsedData.length : 0);
         setAverageTimeOnPage(visits > 0 ? totalTime / visits : 0);
 
-        // Set top sources and locations
         setTopSources(
           Object.entries(allSources)
             .map(([name, value]) => ({ name, value }))
@@ -222,7 +214,9 @@ export default function DashboardHome() {
         },
         (payload) => {
           if (payload.new) {
-            const analytics = payload.new.analytics as any;
+            const analytics = typeof payload.new.analytics === 'string' 
+              ? JSON.parse(payload.new.analytics) 
+              : payload.new.analytics;
             if (analytics?.real_time?.active_visitors) {
               setActiveVisitors(analytics.real_time.active_visitors);
             }
@@ -235,6 +229,12 @@ export default function DashboardHome() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const performanceData = stats.map(page => ({
+    name: page.title,
+    visits: page.analytics?.visits?.length || 0,
+    conversions: page.analytics?.conversions?.length || 0,
+  }));
 
   const exportAnalytics = async () => {
     try {
@@ -293,18 +293,8 @@ export default function DashboardHome() {
   };
 
   const generatePDFContent = (data: any[]) => {
-    // Simplified PDF content generation - in real implementation, 
-    // you would use a library like pdfmake or jspdf
     return JSON.stringify(data, null, 2);
   };
-
-  const performanceData = stats.map(page => ({
-    name: page.title,
-    visits: page.analytics?.visits?.length || 0,
-    conversions: page.analytics?.conversions?.length || 0,
-  }));
-
-  const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#af19ff'];
 
   return (
     <div className="space-y-6">
@@ -340,223 +330,26 @@ export default function DashboardHome() {
           )}
         </div>
       </div>
-      
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Visits
-            </CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalVisits}</div>
-            <div className="text-xs text-muted-foreground">
-              Target: {stats[0]?.goals_config.visit_goal || 1000}
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Conversions
-            </CardTitle>
-            <MousePointerClick className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalConversions}</div>
-            <div className="text-xs text-muted-foreground">
-              Target: {stats[0]?.goals_config.conversion_goal || 100}
-            </div>
-          </CardContent>
-        </Card>
+      <DashboardStats
+        totalVisits={totalVisits}
+        totalConversions={totalConversions}
+        conversionRate={conversionRate}
+        bounceRate={bounceRate}
+        averageTimeOnPage={averageTimeOnPage}
+        activeVisitors={activeVisitors}
+        lastConversionAt={stats.find(page => page.last_conversion_at)?.last_conversion_at || null}
+        topLocations={topLocations}
+        topSources={topSources}
+        visitGoal={stats[0]?.goals_config.visit_goal || 1000}
+        conversionGoal={stats[0]?.goals_config.conversion_goal || 100}
+        industryBenchmarks={industryBenchmarks}
+      />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Conversion Rate
-            </CardTitle>
-            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {conversionRate.toFixed(1)}%
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Last Conversion
-            </CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-medium">
-              {stats.some(page => page.last_conversion_at)
-                ? new Date(Math.max(...stats
-                    .filter(page => page.last_conversion_at)
-                    .map(page => new Date(page.last_conversion_at!).getTime())))
-                    .toLocaleDateString()
-                : 'No conversions yet'
-              }
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Bounce Rate
-            </CardTitle>
-            <ArrowDownToLine className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {bounceRate.toFixed(1)}%
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Avg. Time on Page
-            </CardTitle>
-            <Timer className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.floor(averageTimeOnPage / 60)}m {Math.floor(averageTimeOnPage % 60)}s
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Top Location
-            </CardTitle>
-            <Map className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {topLocations[0]?.name || 'N/A'}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {topLocations[0]?.value || 0} visits
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Top Source
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {topSources[0]?.name || 'N/A'}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {topSources[0]?.value || 0} visits
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Visitors
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeVisitors}</div>
-            <p className="text-xs text-muted-foreground">Real-time tracking</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Industry Benchmarks
-            </CardTitle>
-            <LineChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div>
-                <span className="text-sm text-muted-foreground">Bounce Rate: </span>
-                <span className="font-medium">{industryBenchmarks.bounceRate}%</span>
-              </div>
-              <div>
-                <span className="text-sm text-muted-foreground">Conversion Rate: </span>
-                <span className="font-medium">{industryBenchmarks.conversionRate}%</span>
-              </div>
-              <div>
-                <span className="text-sm text-muted-foreground">Avg Time: </span>
-                <span className="font-medium">{Math.floor(industryBenchmarks.avgTime / 60)}m</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="pt-6">
-          <CardHeader>
-            <CardTitle>Performance Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="visits" fill="#8884d8" name="Visits" />
-                  <Bar dataKey="conversions" fill="#82ca9d" name="Conversions" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="pt-6">
-          <CardHeader>
-            <CardTitle>Traffic Sources</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={topSources}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {topSources.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <DashboardCharts
+        performanceData={performanceData}
+        topSources={topSources}
+      />
 
       <div className="mt-6 flex justify-end">
         <Button onClick={() => setShowExportModal(true)}>
@@ -565,57 +358,15 @@ export default function DashboardHome() {
         </Button>
       </div>
 
-      <Dialog open={showExportModal} onOpenChange={setShowExportModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Export Analytics Data</DialogTitle>
-            <DialogDescription>
-              Choose your export format and metrics
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Export Format</Label>
-              <Select value={exportFormat} onValueChange={(value: 'csv' | 'pdf') => setExportFormat(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select format" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="csv">CSV</SelectItem>
-                  <SelectItem value="pdf">PDF</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Include Metrics</Label>
-              <div className="space-y-2">
-                <Checkbox
-                  checked={exportMetrics.includes('all')}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setExportMetrics(['all']);
-                    } else {
-                      setExportMetrics([]);
-                    }
-                  }}
-                />
-                <span className="ml-2">All Metrics</span>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowExportModal(false)}>
-                Cancel
-              </Button>
-              <Button onClick={exportAnalytics}>
-                Export
-              </Button>
-            </DialogFooter>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ExportModal
+        open={showExportModal}
+        onOpenChange={setShowExportModal}
+        exportFormat={exportFormat}
+        onExportFormatChange={(format) => setExportFormat(format)}
+        exportMetrics={exportMetrics}
+        onExportMetricsChange={setExportMetrics}
+        onExport={exportAnalytics}
+      />
     </div>
   );
 }
