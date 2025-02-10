@@ -12,6 +12,13 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogD
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { type DateRange } from "react-day-picker";
+
+interface GoalsConfig {
+  visit_goal: number;
+  conversion_goal: number;
+  notification_threshold: number;
+}
 
 interface Analytics {
   visits: any[];
@@ -43,11 +50,7 @@ interface LandingPageStats {
   title: string;
   analytics: Analytics;
   last_conversion_at: string | null;
-  goals_config: {
-    visit_goal: number;
-    conversion_goal: number;
-    notification_threshold: number;
-  };
+  goals_config: GoalsConfig;
 }
 
 type TimePeriod = 'day' | 'week' | 'month' | 'custom';
@@ -62,7 +65,7 @@ export default function DashboardHome() {
   const [topSources, setTopSources] = useState<{ name: string; value: number }[]>([]);
   const [topLocations, setTopLocations] = useState<{ name: string; value: number }[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('week');
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: startOfWeek(new Date()),
     to: endOfWeek(new Date())
   });
@@ -132,11 +135,13 @@ export default function DashboardHome() {
             weekly_stats: {},
             monthly_stats: {}
           },
-          goals_config: page.goals_config || {
-            visit_goal: 1000,
-            conversion_goal: 100,
-            notification_threshold: 80
-          }
+          goals_config: typeof page.goals_config === 'string' 
+            ? JSON.parse(page.goals_config) 
+            : page.goals_config || {
+                visit_goal: 1000,
+                conversion_goal: 100,
+                notification_threshold: 80
+              }
         }));
 
         setStats(parsedData);
