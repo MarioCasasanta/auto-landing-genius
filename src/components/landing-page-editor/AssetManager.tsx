@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import ImageGeneratorDialog from "@/components/ImageGeneratorDialog";
 import {
   Dialog,
   DialogContent,
@@ -79,6 +80,11 @@ export default function AssetManager({ onSelectImage }: AssetManagerProps) {
     }
   };
 
+  const handleGeneratedImage = async (url: string) => {
+    await refetch();
+    onSelectImage(url);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -92,27 +98,30 @@ export default function AssetManager({ onSelectImage }: AssetManagerProps) {
           <DialogTitle>Asset Manager</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="image-upload"
-            />
-            <label htmlFor="image-upload">
-              <Button
-                variant="outline"
-                className="w-full"
-                disabled={isUploading}
-                asChild
-              >
-                <span>
-                  <Upload className="mr-2 h-4 w-4" />
-                  {isUploading ? "Uploading..." : "Upload Image"}
-                </span>
-              </Button>
-            </label>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="image-upload"
+              />
+              <label htmlFor="image-upload">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  disabled={isUploading}
+                  asChild
+                >
+                  <span>
+                    <Upload className="mr-2 h-4 w-4" />
+                    {isUploading ? "Uploading..." : "Upload Image"}
+                  </span>
+                </Button>
+              </label>
+            </div>
+            <ImageGeneratorDialog onImageGenerated={handleGeneratedImage} />
           </div>
 
           {isLoading ? (
